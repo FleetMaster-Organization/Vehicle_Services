@@ -1,0 +1,46 @@
+package com.services.vehicle.domain.model;
+
+import com.services.vehicle.domain.enums.AuditAction;
+
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+/**
+ * Modelo de dominio puro que representa un registro de auditoría sobre un vehículo.
+ * Registra qué campo fue modificado, por quién, cuándo, y cuál fue el valor anterior y nuevo.
+ * No contiene anotaciones de persistencia.
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class VehicleAudit {
+
+    private Long id;
+    private Long vehicleId;
+    private AuditAction actionType;
+    private String modifiedField;
+    private String oldValue;
+    private String newValue;
+    private String modifiedBy;
+    private LocalDateTime modifiedAt;
+
+    // -------------------------------------------------------------------------
+    // Factory method: construye un registro de auditoría
+    // -------------------------------------------------------------------------
+    public static VehicleAudit of(Long vehicleId, AuditAction action,
+                                   String modifiedField, String oldValue,
+                                   String newValue, String modifiedBy) {
+        return VehicleAudit.builder()
+                .vehicleId(vehicleId)
+                .actionType(action)
+                .modifiedField(modifiedField)
+                .oldValue(oldValue)
+                .newValue(newValue)
+                .modifiedBy(modifiedBy)
+                .modifiedAt(LocalDateTime.now())
+                .build();
+    }
+}
