@@ -15,7 +15,7 @@ jobs:
         with:
           host: ${{ secrets.ORACLE_HOST_IP }}
           username: ${{ secrets.ORACLE_USERNAME }}
-          key: ${{ secrets.ORACLE_SSH_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/proyecto-web/Vehicle_Services
             git pull origin master
