@@ -17,7 +17,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/proyecto-web/vehicle
+            cd ~/proyecto-web/Vehicle_Services
             git pull origin master
             
             cd ~/proyecto-web
