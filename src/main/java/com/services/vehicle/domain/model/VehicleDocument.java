@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Modelo de dominio puro que representa un documento legal asociado a un vehículo.
@@ -21,8 +22,8 @@ import java.util.List;
 @Builder
 public class VehicleDocument {
 
-    private Long id;
-    private Long vehicleId;
+    private UUID id;
+    private UUID vehicleId;
     private DocumentType documentType;
     private String documentNumber;
     private String issuedBy;
@@ -36,16 +37,22 @@ public class VehicleDocument {
     // -------------------------------------------------------------------------
     // Constructor de creación
     // -------------------------------------------------------------------------
-    public VehicleDocument(Long vehicleId, DocumentType documentType, String documentNumber,
-                           String issuedBy, LocalDate issueDate, LocalDate expirationDate) {
-        this.vehicleId = vehicleId;
-        this.documentType = documentType;
-        this.documentNumber = documentNumber;
-        this.issuedBy = issuedBy;
-        this.issueDate = issueDate;
-        this.expirationDate = expirationDate;
-        this.legalStatus = determineLegalStatus(expirationDate);
-        this.audits = new ArrayList<>();
+    public static VehicleDocument create(UUID vehicleId, DocumentType documentType, String documentNumber,
+                                         String issuedBy, LocalDate issueDate, LocalDate expirationDate) {
+
+        return VehicleDocument.builder()
+                .id(UUID.randomUUID())
+                .vehicleId(vehicleId)
+                .documentType(documentType)
+                .documentNumber(documentNumber)
+                .issuedBy(issuedBy)
+                .issueDate(issueDate)
+                .expirationDate(expirationDate)
+                .legalStatus(expirationDate.isBefore(LocalDate.now())
+                        ? LegalStatus.EXPIRED
+                        : LegalStatus.VALID)
+                .audits(new ArrayList<>())
+                .build();
     }
 
     // -------------------------------------------------------------------------

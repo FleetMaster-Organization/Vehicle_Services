@@ -11,6 +11,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Modelo de dominio puro que representa un vehículo de la flota.
@@ -24,7 +25,7 @@ import java.util.List;
 @Builder
 public class Vehicle {
 
-    private Long id;
+    private UUID id;
     private String plate;
     private String vin;
     private String brand;

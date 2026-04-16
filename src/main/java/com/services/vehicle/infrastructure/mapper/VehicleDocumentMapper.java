@@ -31,11 +31,12 @@ public abstract class VehicleDocumentMapper {
     // Dominio → Entidad
     // -------------------------------------------------------------------------
 
-    @Mapping(target = "vehicle", source = "vehicleEntity")
+    @Mapping(target = "id", source = "domain.id")
+    @Mapping(target = "vehicle", expression = "java(vehicleEntity)")
     @Mapping(target = "audits", ignore = true)
     public abstract VehicleDocumentEntity toEntity(
             VehicleDocument domain,
-            @Context VehicleEntity vehicleEntity
+            VehicleEntity vehicleEntity
     );
 
     public abstract List<VehicleDocumentEntity> toEntityList(

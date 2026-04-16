@@ -29,8 +29,8 @@ public abstract class VehicleAuditMapper {
     // -------------------------------------------------------------------------
     // Dominio → Entidad
     // -------------------------------------------------------------------------
-
-    @Mapping(target = "vehicle", source = "vehicleEntity")
+    @Mapping(target = "id", source = "domain.id")
+    @Mapping(target = "vehicle", expression = "java(vehicleEntity)")
     public abstract VehicleAuditEntity toEntity(
             VehicleAudit domain,
             @Context VehicleEntity vehicleEntity

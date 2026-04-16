@@ -12,6 +12,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Entidad JPA que mapea la tabla "vehicles" en la base de datos.
@@ -28,8 +29,8 @@ import java.util.List;
 public class VehicleEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(nullable = false, unique = true, length = 10)
     private String plate;

@@ -5,6 +5,7 @@ import com.services.vehicle.domain.enums.AuditAction;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Modelo de dominio puro que representa un registro de auditoría sobre un vehículo.
@@ -18,8 +19,8 @@ import java.time.LocalDateTime;
 @Builder
 public class VehicleAudit {
 
-    private Long id;
-    private Long vehicleId;
+    private UUID id;
+    private UUID vehicleId;
     private AuditAction actionType;
     private String modifiedField;
     private String oldValue;
@@ -30,10 +31,11 @@ public class VehicleAudit {
     // -------------------------------------------------------------------------
     // Factory method: construye un registro de auditoría
     // -------------------------------------------------------------------------
-    public static VehicleAudit of(Long vehicleId, AuditAction action,
-                                   String modifiedField, String oldValue,
-                                   String newValue, String modifiedBy) {
+    public static VehicleAudit of(UUID vehicleId, AuditAction action,
+                                  String modifiedField, String oldValue,
+                                  String newValue, String modifiedBy) {
         return VehicleAudit.builder()
+                .id(UUID.randomUUID())
                 .vehicleId(vehicleId)
                 .actionType(action)
                 .modifiedField(modifiedField)
