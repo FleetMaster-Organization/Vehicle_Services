@@ -13,12 +13,11 @@ jobs:
       - name: Deploy vehicle-services to Oracle Server
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
+          host: ${{ secrets.ORACLE_HOST_IP }}
+          username: ${{ secrets.ORACLE_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/proyecto-web/vehicle
+            cd ~/proyecto-web/Vehicle_Services
             git pull origin master
-            
             cd ~/proyecto-web
-            docker-compose up -d --build vehicle-services
+            docker compose up -d --build vehicle-services
