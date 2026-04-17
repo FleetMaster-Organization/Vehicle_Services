@@ -3,38 +3,30 @@ package com.services.vehicle.domain.repository;
 import com.services.vehicle.domain.model.VehicleDocument;
 import com.services.vehicle.domain.enums.DocumentType;
 import com.services.vehicle.domain.enums.LegalStatus;
-import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
+import com.services.vehicle.persistence.entity.VehicleDocumentEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de salida del dominio para la persistencia de documentos vehiculares.
  * Implementado en la capa de infraestructura.
  */
-public interface VehicleDocumentRepository {
+public interface VehicleDocumentRepository extends JpaRepository<VehicleDocumentEntity, UUID> {
 
-    /**
-     * Persiste un documento nuevo o actualiza uno existente.
-     */
-    VehicleDocument save(VehicleDocument document);
-
-    /**
-     * Busca un documento por su ID.
-     */
-    Optional<VehicleDocument> findById(Long id);
 
     /**
      * Retorna todos los documentos de un vehículo específico.
      */
-    List<VehicleDocument> findByVehicleId(Long vehicleId);
+    List<VehicleDocument> findByVehicleId(UUID vehicleId);
 
     /**
      * Retorna los documentos de un vehículo filtrados por tipo.
      */
-    List<VehicleDocument> findByVehicleIdAndDocumentType(Long vehicleId, DocumentType documentType);
+    List<VehicleDocument> findByVehicleIdAndDocumentType(UUID vehicleId, DocumentType documentType);
 
     /**
      * Retorna todos los documentos con un estado legal específico.
@@ -47,8 +39,5 @@ public interface VehicleDocumentRepository {
      */
     List<VehicleDocument> findByExpirationDateBefore(LocalDate date);
 
-    /**
-     * Elimina un documento por su ID.
-     */
-    void deleteById(Long id);
+
 }

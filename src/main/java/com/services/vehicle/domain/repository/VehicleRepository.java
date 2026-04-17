@@ -3,9 +3,12 @@ package com.services.vehicle.domain.repository;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
+import com.services.vehicle.persistence.entity.VehicleEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de salida del dominio para la persistencia de vehículos.
@@ -13,17 +16,8 @@ import java.util.Optional;
  * No debe importar nada de Spring, JPA ni ningún framework externo.
  */
 
-public interface VehicleRepository {
+public interface VehicleRepository extends JpaRepository<VehicleEntity, UUID> {
 
-    /**
-     * Persiste un vehículo nuevo o actualiza uno existente.
-     */
-    Vehicle save(Vehicle vehicle);
-
-    /**
-     * Busca un vehículo por su ID interno.
-     */
-    Optional<Vehicle> findById(Long id);
 
     /**
      * Busca un vehículo por su placa.
@@ -35,10 +29,6 @@ public interface VehicleRepository {
      */
     Optional<Vehicle> findByVin(String vin);
 
-    /**
-     * Retorna todos los vehículos registrados.
-     */
-    List<Vehicle> findAll();
 
     /**
      * Retorna todos los vehículos con un estado operacional específico.
@@ -60,8 +50,4 @@ public interface VehicleRepository {
      */
     boolean existsByVin(String vin);
 
-    /**
-     * Elimina un vehículo por su ID.
-     */
-    void deleteById(Long id);
 }

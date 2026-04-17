@@ -2,21 +2,26 @@ spring:
   application:
     name: vehicle-services
 
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+
   # Configuración para TiDB (Protocolo MySQL)
   datasource:
-    url: jdbc:mysql://${TIDB_HOST}:${TIDB_PORT:4000}/${TIDB_DB}
-    username: ${TIDB_USER}
-    password: ${TIDB_PASSWORD}
+    url: ${SPRING_DATASURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 server:
-  port: ${PORT:8080}
+  port: 8080
 
 #Eureka: Servicio de registro de direcciones para la ApiGateway
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_URL}
   instance:
     # Esto es vital en Cloud Run para que Eureka no use IPs internas que cambian
     prefer-ip-address: true
