@@ -6,6 +6,8 @@ import com.services.vehicle.domain.valueobject.EngineNumber;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.domain.valueobject.Mileage;
+import com.services.vehicle.domain.exception.InvalidDomainDataException;
+import com.services.vehicle.domain.exception.InvalidVehicleStateException;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -86,7 +88,7 @@ public class Vehicle {
 
     public void updateCurrentKm(Mileage newMileage) {
         if (!newMileage.greaterThan(currentKm)) {
-            throw new IllegalArgumentException(
+            throw new InvalidDomainDataException(
                     "El nuevo kilometraje (%d km) debe ser mayor que el kilometraje actual (%d km)."
                             .formatted(newMileage.value(), currentKm.value())
             );
@@ -96,12 +98,12 @@ public class Vehicle {
 
     public void sendToMaintenance() {
         if (this.operationalStatus == OperationalStatus.SCRAPPED) {
-            throw new IllegalStateException(
+            throw new InvalidVehicleStateException(
                     "Un vehículo dado de baja no puede enviarse a mantenimiento."
             );
         }
         if (this.operationalStatus == OperationalStatus.IN_MAINTENANCE) {
-            throw new IllegalStateException(
+            throw new InvalidVehicleStateException(
                     "El vehículo ya está en mantenimiento.."
             );
         }
@@ -111,7 +113,7 @@ public class Vehicle {
 
     public void activate() {
         if (this.operationalStatus == OperationalStatus.SCRAPPED) {
-            throw new IllegalStateException("Un vehículo dado de baja no puede reactivarse.");
+            throw new InvalidVehicleStateException("Un vehículo dado de baja no puede reactivarse.");
         }
         this.operationalStatus = OperationalStatus.ACTIVE;
         this.administrativeStatus = AdministrativeStatus.AVAILABLE;
@@ -119,7 +121,7 @@ public class Vehicle {
 
     public void scrap() {
         if (this.operationalStatus == OperationalStatus.SCRAPPED) {
-            throw new IllegalStateException("El vehículo ya ha sido desguazado.");
+            throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
         }
         this.operationalStatus = OperationalStatus.SCRAPPED;
         this.administrativeStatus = AdministrativeStatus.SUSPENDED;
@@ -127,12 +129,12 @@ public class Vehicle {
 
     public void assign(LocalDate today) {
         if (this.operationalStatus != OperationalStatus.ACTIVE) {
-            throw new IllegalStateException(
+            throw new InvalidVehicleStateException(
                     "Solo se pueden asignar vehículos ACTIVOS."
             );
         }
         if (!isLegallyCompliant(today)) {
-            throw new IllegalStateException(
+            throw new InvalidVehicleStateException(
                     "No se puede asignar el vehículo: uno o más documentos requeridos están vencidos o faltan."
             );
         }
@@ -141,7 +143,7 @@ public class Vehicle {
 
     public void release() {
         if (this.administrativeStatus != AdministrativeStatus.ASSIGNED) {
-            throw new IllegalStateException("El vehículo no está actualmente asignado.");
+            throw new InvalidVehicleStateException("El vehículo no está actualmente asignado.");
         }
         this.administrativeStatus = AdministrativeStatus.AVAILABLE;
     }
@@ -154,7 +156,7 @@ public class Vehicle {
                 );
 
         if (alreadyActive) {
-            throw new IllegalStateException(
+            throw new InvalidVehicleStateException(
                     "El vehículo ya tiene un documento activo del tipo:"
                             + document.getDocumentType()
             );

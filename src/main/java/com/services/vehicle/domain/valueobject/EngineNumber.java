@@ -1,6 +1,7 @@
 package com.services.vehicle.domain.valueobject;
 
 import jakarta.persistence.Embeddable;
+import com.services.vehicle.domain.exception.InvalidDomainDataException;
 
 @Embeddable
 
@@ -11,11 +12,11 @@ public record EngineNumber(
     public EngineNumber {
 
         if(value == null || value.isBlank()){
-            throw new IllegalArgumentException();
+            throw new InvalidDomainDataException("Engine number cannot be blank");
         }
 
         if(value.length() < 6){
-            throw new IllegalArgumentException();
+            throw new InvalidDomainDataException("Engine number must be at least 6 characters long");
         }
     }
 }

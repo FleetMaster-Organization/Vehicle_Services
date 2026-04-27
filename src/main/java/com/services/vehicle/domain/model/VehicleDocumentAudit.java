@@ -1,6 +1,7 @@
 package com.services.vehicle.domain.model;
 
 import com.services.vehicle.domain.enums.AuditAction;
+import com.services.vehicle.domain.exception.InvalidDomainDataException;
 
 import lombok.*;
 
@@ -36,7 +37,7 @@ public class VehicleDocumentAudit {
             String modifiedBy
     ) {
         if (modifiedBy == null || modifiedBy.isBlank()) {
-            throw new IllegalArgumentException("modifiedBy is required for audit trail");
+            throw new InvalidDomainDataException("modifiedBy is required for audit trail");
         }
 
         return VehicleDocumentAudit.builder()
