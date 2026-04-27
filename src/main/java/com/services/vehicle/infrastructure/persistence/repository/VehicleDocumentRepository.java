@@ -1,9 +1,9 @@
-package com.services.vehicle.domain.repository;
+package com.services.vehicle.infrastructure.persistence.repository;
 
 import com.services.vehicle.domain.model.VehicleDocument;
 import com.services.vehicle.domain.enums.DocumentType;
 import com.services.vehicle.domain.enums.LegalStatus;
-import com.services.vehicle.persistence.entity.VehicleDocumentEntity;
+import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 

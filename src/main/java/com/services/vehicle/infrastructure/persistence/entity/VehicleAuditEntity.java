@@ -1,4 +1,4 @@
-package com.services.vehicle.persistence.entity;
+package com.services.vehicle.infrastructure.persistence.entity;
 
 import com.services.vehicle.domain.enums.AuditAction;
 
@@ -9,26 +9,26 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Entidad JPA que mapea la tabla "vehicle_document_audits" en la base de datos.
- * Registra el historial de cambios realizados sobre documentos vehiculares.
+ * Entidad JPA que mapea la tabla "vehicle_audits" en la base de datos.
+ * Registra el historial de cambios realizados sobre un vehículo.
  * Esta clase pertenece exclusivamente a la capa de infraestructura.
  */
 @Entity
-@Table(name = "vehicle_document_audits")
+@Table(name = "vehicle_audits")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VehicleDocumentAuditEntity {
+public class VehicleAuditEntity {
 
     @Id
     @GeneratedValue
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id", nullable = false)
-    private VehicleDocumentEntity document;
+    @JoinColumn(name = "vehicle_id", nullable = false)
+    private VehicleEntity vehicle;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)

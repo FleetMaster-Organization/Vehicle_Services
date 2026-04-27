@@ -1,7 +1,7 @@
-package com.services.vehicle.domain.repository;
+package com.services.vehicle.infrastructure.persistence.repository;
 
 import com.services.vehicle.domain.model.VehicleAudit;
-import com.services.vehicle.persistence.entity.VehicleAuditEntity;
+import com.services.vehicle.infrastructure.persistence.entity.VehicleAuditEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 

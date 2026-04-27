@@ -1,8 +1,8 @@
 package com.services.vehicle.infrastructure.mapper;
 
 import com.services.vehicle.domain.model.VehicleDocument;
-import com.services.vehicle.persistence.entity.VehicleDocumentEntity;
-import com.services.vehicle.persistence.entity.VehicleEntity;
+import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentEntity;
+import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

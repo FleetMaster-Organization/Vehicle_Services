@@ -1,4 +1,4 @@
-package com.services.vehicle.persistence.entity;
+package com.services.vehicle.infrastructure.persistence.entity;
 
 import com.services.vehicle.domain.enums.DocumentType;
 import com.services.vehicle.domain.enums.LegalStatus;
