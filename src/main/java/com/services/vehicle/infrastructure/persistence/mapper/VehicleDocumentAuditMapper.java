@@ -1,4 +1,4 @@
-package com.services.vehicle.infrastructure.mapper;
+package com.services.vehicle.infrastructure.persistence.mapper;
 
 import com.services.vehicle.domain.model.VehicleDocumentAudit;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentAuditEntity;

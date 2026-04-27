@@ -13,10 +13,8 @@ import java.util.UUID;
  * No contiene anotaciones de persistencia.
  */
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 public class VehicleDocumentAudit {
 
     private UUID id;
@@ -28,12 +26,18 @@ public class VehicleDocumentAudit {
     private String modifiedBy;
     private LocalDateTime modifiedAt;
 
-    // -------------------------------------------------------------------------
-    // Factory method
-    // -------------------------------------------------------------------------
-    public static VehicleDocumentAudit of(UUID documentId, AuditAction action,
-                                          String modifiedField, String oldValue,
-                                          String newValue, String modifiedBy) {
+    public static VehicleDocumentAudit of(
+            UUID documentId,
+            AuditAction action,
+            String modifiedField,
+            String oldValue,
+            String newValue,
+            String modifiedBy
+    ) {
+        if (modifiedBy == null || modifiedBy.isBlank()) {
+            throw new IllegalArgumentException("modifiedBy is required for audit trail");
+        }
+
         return VehicleDocumentAudit.builder()
                 .id(UUID.randomUUID())
                 .documentId(documentId)

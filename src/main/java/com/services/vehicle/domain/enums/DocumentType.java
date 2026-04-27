@@ -2,7 +2,7 @@ package com.services.vehicle.domain.enums;
 
 public enum DocumentType {
     SOAT,
-    TECNOMECANICA,
+    TECNO,
     PROPERTY_CARD,
     CIRCULATION_PERMIT,
     INSURANCE,

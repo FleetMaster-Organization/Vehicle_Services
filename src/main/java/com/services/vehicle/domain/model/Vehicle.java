@@ -1,13 +1,14 @@
 package com.services.vehicle.domain.model;
 
-import com.services.vehicle.domain.enums.AdministrativeStatus;
-import com.services.vehicle.domain.enums.BodyType;
-import com.services.vehicle.domain.enums.FuelType;
-import com.services.vehicle.domain.enums.OperationalStatus;
-import com.services.vehicle.domain.enums.VehicleClass;
+import com.services.vehicle.domain.enums.*;
 
+import com.services.vehicle.domain.valueobject.EngineNumber;
+import com.services.vehicle.domain.valueobject.LicensePlate;
+import com.services.vehicle.domain.valueobject.LicenseVin;
+import com.services.vehicle.domain.valueobject.Mileage;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +20,13 @@ import java.util.UUID;
  * La persistencia es responsabilidad de la capa de infraestructura.
  */
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Vehicle {
 
     private UUID id;
-    private String plate;
-    private String vin;
+    private LicensePlate plate;
+    private LicenseVin vin;
     private String brand;
     private String line;
     private Integer modelYear;
@@ -37,26 +36,24 @@ public class Vehicle {
     private VehicleClass vehicleClass;
     private BodyType bodyType;
     private FuelType fuelType;
-    private String engineNumber;
-    private Double initialKm;
-    private Double currentKm;
+    private EngineNumber engineNumber;
+    private Mileage initialKm;
+    private Mileage currentKm;
     private OperationalStatus operationalStatus;
     private AdministrativeStatus administrativeStatus;
     private LocalDateTime createdAt;
 
-    @Builder.Default
     private List<VehicleDocument> documents = new ArrayList<>();
 
-    @Builder.Default
     private List<VehicleAudit> audits = new ArrayList<>();
 
     // -------------------------------------------------------------------------
-    // Const ructor de negocio
+    // Constructor de negocio
     // -------------------------------------------------------------------------
-    public Vehicle(String plate, String vin, String brand, String line,
+    public Vehicle(LicensePlate plate, LicenseVin vin, String brand, String line,
                    Integer modelYear, Integer displacementCc, String color,
                    String service, VehicleClass vehicleClass, BodyType bodyType,
-                   FuelType fuelType, String engineNumber, Double initialKm) {
+                   FuelType fuelType, EngineNumber engineNumber, Mileage initialKm, Mileage currentKm) {
 
         this.plate = plate;
         this.vin = vin;
@@ -71,7 +68,7 @@ public class Vehicle {
         this.fuelType = fuelType;
         this.engineNumber = engineNumber;
         this.initialKm = initialKm;
-        this.currentKm = initialKm;
+        this.currentKm = currentKm;
         this.operationalStatus = OperationalStatus.ACTIVE;
         this.administrativeStatus = AdministrativeStatus.AVAILABLE;
         this.createdAt = LocalDateTime.now();
@@ -83,18 +80,26 @@ public class Vehicle {
     // Lógica de negocio
     // -------------------------------------------------------------------------
 
-    public void updateCurrentKm(Double newKm) {
-        if (newKm == null || newKm < this.currentKm) {
+    public void updateCurrentKm(Mileage newMileage) {
+        if (!newMileage.greaterThan(currentKm)) {
             throw new IllegalArgumentException(
-                    "El nuevo kilometraje (" + newKm + ") no puede ser menor al actual (" + this.currentKm + ")."
+                    "El nuevo kilometraje (%d km) debe ser mayor que el kilometraje actual (%d km)."
+                            .formatted(newMileage.value(), currentKm.value())
             );
         }
-        this.currentKm = newKm;
+        this.currentKm = newMileage;
     }
 
     public void sendToMaintenance() {
         if (this.operationalStatus == OperationalStatus.SCRAPPED) {
-            throw new IllegalStateException("Un vehículo dado de baja no puede enviarse a mantenimiento.");
+            throw new IllegalStateException(
+                    "Un vehículo dado de baja no puede enviarse a mantenimiento."
+            );
+        }
+        if (this.operationalStatus == OperationalStatus.IN_MAINTENANCE) {
+            throw new IllegalStateException(
+                    "El vehículo ya está en mantenimiento.."
+            );
         }
         this.operationalStatus = OperationalStatus.IN_MAINTENANCE;
         this.administrativeStatus = AdministrativeStatus.RESERVED;
@@ -109,13 +114,23 @@ public class Vehicle {
     }
 
     public void scrap() {
+        if (this.operationalStatus == OperationalStatus.SCRAPPED) {
+            throw new IllegalStateException("El vehículo ya ha sido desguazado.");
+        }
         this.operationalStatus = OperationalStatus.SCRAPPED;
         this.administrativeStatus = AdministrativeStatus.SUSPENDED;
     }
 
-    public void assign() {
+    public void assign(LocalDate today) {
         if (this.operationalStatus != OperationalStatus.ACTIVE) {
-            throw new IllegalStateException("Solo se puede asignar un vehículo en estado ACTIVE.");
+            throw new IllegalStateException(
+                    "Solo se pueden asignar vehículos ACTIVOS."
+            );
+        }
+        if (!isLegallyCompliant(today)) {
+            throw new IllegalStateException(
+                    "No se puede asignar el vehículo: uno o más documentos requeridos están vencidos o faltan."
+            );
         }
         this.administrativeStatus = AdministrativeStatus.ASSIGNED;
     }
@@ -128,6 +143,48 @@ public class Vehicle {
     }
 
     public void addDocument(VehicleDocument document) {
+        boolean alreadyActive = this.documents.stream()
+                .anyMatch(d ->
+                        d.getDocumentType() == document.getDocumentType()
+                                && d.isValid(LocalDate.now())
+                );
+
+        if (alreadyActive) {
+            throw new IllegalStateException(
+                    "El vehículo ya tiene un documento activo del tipo:"
+                            + document.getDocumentType()
+            );
+        }
+
         this.documents.add(document);
     }
+
+    // ¿Tiene un documento válido de cierto tipo?
+    public boolean hasValidDocument(DocumentType type, LocalDate today) {
+        return this.documents.stream()
+                .anyMatch(d ->
+                        d.getDocumentType() == type
+                                && d.isValid(today)
+                );
+    }
+
+    // Documentos próximos a vencer
+    public List<VehicleDocument> documentsAboutToExpire(int days, LocalDate today) {
+        return this.documents.stream()
+                .filter(d -> d.isAboutToExpire(days, today))
+                .toList();
+    }
+
+    // ¿Está el vehículo en regla? (todos los docs obligatorios vigentes)
+    public boolean isLegallyCompliant(LocalDate today) {
+        List<DocumentType> required = List.of(
+                DocumentType.SOAT,
+                DocumentType.TECNO,
+                DocumentType.PROPERTY_CARD
+        );
+        return required.stream()
+                .allMatch(type -> hasValidDocument(type, today));
+    }
+
+
 }

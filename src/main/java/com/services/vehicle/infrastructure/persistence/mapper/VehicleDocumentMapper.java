@@ -1,7 +1,7 @@
-package com.services.vehicle.infrastructure.mapper;
+package com.services.vehicle.infrastructure.persistence.mapper;
 
-import com.services.vehicle.domain.model.VehicleAudit;
-import com.services.vehicle.infrastructure.persistence.entity.VehicleAuditEntity;
+import com.services.vehicle.domain.model.VehicleDocument;
+import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentEntity;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 
 import org.mapstruct.Mapper;
@@ -13,31 +13,34 @@ import java.util.List;
 
 @Mapper(
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = { VehicleDocumentAuditMapper.class }
 )
-public abstract class VehicleAuditMapper {
+public abstract class VehicleDocumentMapper {
 
     // -------------------------------------------------------------------------
     // Entidad → Dominio
     // -------------------------------------------------------------------------
 
     @Mapping(target = "vehicleId", source = "vehicle.id")
-    public abstract VehicleAudit toDomain(VehicleAuditEntity entity);
+    public abstract VehicleDocument toDomain(VehicleDocumentEntity entity);
 
-    public abstract List<VehicleAudit> toDomainList(List<VehicleAuditEntity> entities);
+    public abstract List<VehicleDocument> toDomainList(List<VehicleDocumentEntity> entities);
 
     // -------------------------------------------------------------------------
     // Dominio → Entidad
     // -------------------------------------------------------------------------
+
     @Mapping(target = "id", source = "domain.id")
     @Mapping(target = "vehicle", expression = "java(vehicleEntity)")
-    public abstract VehicleAuditEntity toEntity(
-            VehicleAudit domain,
-            @Context VehicleEntity vehicleEntity
+    @Mapping(target = "audits", ignore = true)
+    public abstract VehicleDocumentEntity toEntity(
+            VehicleDocument domain,
+            VehicleEntity vehicleEntity
     );
 
-    public abstract List<VehicleAuditEntity> toEntityList(
-            List<VehicleAudit> domains,
+    public abstract List<VehicleDocumentEntity> toEntityList(
+            List<VehicleDocument> domains,
             @Context VehicleEntity vehicleEntity
     );
 }

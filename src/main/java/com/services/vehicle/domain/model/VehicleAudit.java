@@ -13,7 +13,6 @@ import java.util.UUID;
  * No contiene anotaciones de persistencia.
  */
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -2,7 +2,8 @@ package com.services.vehicle.domain.model;
 
 import com.services.vehicle.domain.enums.DocumentType;
 import com.services.vehicle.domain.enums.LegalStatus;
-
+import com.services.vehicle.domain.valueobject.DocumentNumber;
+import com.services.vehicle.domain.valueobject.ValidityPeriod;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -10,105 +11,109 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Modelo de dominio puro que representa un documento legal asociado a un vehículo.
- * Ejemplos: SOAT, Tecnomecánica, Tarjeta de Propiedad.
- * No contiene anotaciones de persistencia.
- */
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class VehicleDocument {
 
     private UUID id;
     private UUID vehicleId;
+
     private DocumentType documentType;
-    private String documentNumber;
+    private DocumentNumber documentNumber;
     private String issuedBy;
-    private LocalDate issueDate;
-    private LocalDate expirationDate;
+
+    private ValidityPeriod validityPeriod;
+
     private LegalStatus legalStatus;
 
-    @Builder.Default
-    private List<VehicleDocumentAudit> audits = new ArrayList<>();
+    private List<VehicleDocumentAudit> audits =
+            new ArrayList<>();
 
-    // -------------------------------------------------------------------------
-    // Constructor de creación
-    // -------------------------------------------------------------------------
-    public static VehicleDocument create(UUID vehicleId, DocumentType documentType, String documentNumber,
-                                         String issuedBy, LocalDate issueDate, LocalDate expirationDate) {
 
-        return VehicleDocument.builder()
-                .id(UUID.randomUUID())
-                .vehicleId(vehicleId)
-                .documentType(documentType)
-                .documentNumber(documentNumber)
-                .issuedBy(issuedBy)
-                .issueDate(issueDate)
-                .expirationDate(expirationDate)
-                .legalStatus(expirationDate.isBefore(LocalDate.now())
+    public static VehicleDocument create(
+            UUID vehicleId,
+            DocumentType documentType,
+            DocumentNumber documentNumber,
+            String issuedBy,
+            ValidityPeriod validityPeriod
+    ) {
+        if (issuedBy == null || issuedBy.isBlank()) {
+            throw new IllegalArgumentException("Issuer (issuedBy) is required");
+        }
+
+        return new VehicleDocument(
+                UUID.randomUUID(),
+                vehicleId,
+                documentType,
+                documentNumber,
+                issuedBy,
+                validityPeriod,
+                validityPeriod.isExpired(LocalDate.now())
                         ? LegalStatus.EXPIRED
-                        : LegalStatus.VALID)
-                .audits(new ArrayList<>())
-                .build();
+                        : LegalStatus.VALID,
+                new ArrayList<>()
+        );
     }
 
-    // -------------------------------------------------------------------------
-    // Lógica de negocio
-    // -------------------------------------------------------------------------
+    public void renew(
+            DocumentNumber newDocumentNumber,
+            String newIssuedBy,
+            LocalDate newIssueDate,
+            LocalDate newExpirationDate
+    ) {
 
-    /**
-     * Renueva el documento con nueva información de expedición y vencimiento.
-     */
-    public void renew(String newDocumentNumber, String newIssuedBy,
-                      LocalDate newIssueDate, LocalDate newExpirationDate) {
-        if (newExpirationDate.isBefore(newIssueDate)) {
-            throw new IllegalArgumentException("La fecha de vencimiento no puede ser anterior a la de expedición.");
+        if (this.legalStatus == LegalStatus.SUSPENDED) {
+            throw new IllegalStateException(
+                    "Cannot renew a suspended document. Lift the suspension first."
+            );
         }
+
         this.documentNumber = newDocumentNumber;
         this.issuedBy = newIssuedBy;
-        this.issueDate = newIssueDate;
-        this.expirationDate = newExpirationDate;
-        this.legalStatus = determineLegalStatus(newExpirationDate);
+
+        this.validityPeriod =
+                validityPeriod.renew(
+                        newIssueDate,
+                        newExpirationDate
+                );
+
+        this.legalStatus = LegalStatus.VALID;
     }
 
-    /**
-     * Verifica si el documento está vigente a la fecha actual.
-     */
-    public boolean isValid() {
-        return this.legalStatus == LegalStatus.VALID && !expirationDate.isBefore(LocalDate.now());
+    public boolean isValid(LocalDate today) {
+        return legalStatus == LegalStatus.VALID
+                && validityPeriod.isValid(today);
     }
 
-    /**
-     * Verifica si el documento vence en los próximos {@code days} días.
-     */
-    public boolean isAboutToExpire(int days) {
-        return !expirationDate.isBefore(LocalDate.now()) &&
-                expirationDate.isBefore(LocalDate.now().plusDays(days));
+    public void checkExpiration(LocalDate today) {
+        if (this.legalStatus == LegalStatus.SUSPENDED) {
+            return; // la suspensión tiene precedencia
+        }
+
+        if (validityPeriod.isExpired(today)) {
+            this.legalStatus = LegalStatus.EXPIRED;
+        } else if (validityPeriod.expiresWithin(30, today)) {
+            this.legalStatus = LegalStatus.PENDING_RENEWAL;
+        } else {
+            this.legalStatus = LegalStatus.VALID;
+        }
     }
 
-    /**
-     * Determina el estado legal basado en la fecha de vencimiento.
-     */
-    private LegalStatus determineLegalStatus(LocalDate expirationDate) {
-        return expirationDate.isBefore(LocalDate.now())
-                ? LegalStatus.EXPIRED
-                : LegalStatus.VALID;
+    public boolean isAboutToExpire(
+            int days,
+            LocalDate today
+    ) {
+        return validityPeriod.expiresWithin(days, today);
     }
 
-    /**
-     * Marca el documento manualmente como suspendido.
-     */
     public void suspend() {
         this.legalStatus = LegalStatus.SUSPENDED;
     }
 
-    /**
-     * Marca el documento para renovación pendiente.
-     */
     public void markPendingRenewal() {
         this.legalStatus = LegalStatus.PENDING_RENEWAL;
     }
+
+
 }
