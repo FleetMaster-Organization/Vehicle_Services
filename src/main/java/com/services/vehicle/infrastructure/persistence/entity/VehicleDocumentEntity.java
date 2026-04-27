@@ -1,8 +1,10 @@
-package com.services.vehicle.persistence.entity;
+package com.services.vehicle.infrastructure.persistence.entity;
 
 import com.services.vehicle.domain.enums.DocumentType;
 import com.services.vehicle.domain.enums.LegalStatus;
 
+import com.services.vehicle.domain.valueobject.DocumentNumber;
+import com.services.vehicle.domain.valueobject.ValidityPeriod;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,17 +38,22 @@ public class VehicleDocumentEntity {
     @Column(nullable = false, length = 30)
     private DocumentType documentType;
 
-    @Column(nullable = false, length = 60)
-    private String documentNumber;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="type", column=@Column(name="doc_number_type", length=30)),
+            @AttributeOverride(name="value", column=@Column(name="document_number", nullable=false, length=60))
+    })
+    private DocumentNumber documentNumber;
 
     @Column(length = 100)
     private String issuedBy;
 
-    @Column(nullable = false)
-    private LocalDate issueDate;
-
-    @Column(nullable = false)
-    private LocalDate expirationDate;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="issueDate", column=@Column(name="issue_date", nullable=false)),
+            @AttributeOverride(name="expirationDate", column=@Column(name="expiration_date", nullable=false))
+    })
+    private ValidityPeriod validityPeriod;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

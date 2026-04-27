@@ -1,8 +1,8 @@
-package com.services.vehicle.infrastructure.mapper;
+package com.services.vehicle.infrastructure.persistence.mapper;
 
 import com.services.vehicle.domain.model.VehicleDocumentAudit;
-import com.services.vehicle.persistence.entity.VehicleDocumentAuditEntity;
-import com.services.vehicle.persistence.entity.VehicleDocumentEntity;
+import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentAuditEntity;
+import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentEntity;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,7 +21,7 @@ public abstract class VehicleDocumentAuditMapper {
     // Entidad → Dominio
     // -------------------------------------------------------------------------
 
-    @Mapping(target = "documentId", source = "document.id")
+    @Mapping(target="documentId", source="document.id")
     public abstract VehicleDocumentAudit toDomain(VehicleDocumentAuditEntity entity);
 
     public abstract List<VehicleDocumentAudit> toDomainList(List<VehicleDocumentAuditEntity> entities);

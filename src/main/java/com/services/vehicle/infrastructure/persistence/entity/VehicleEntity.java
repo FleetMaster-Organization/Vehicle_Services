@@ -1,4 +1,4 @@
-package com.services.vehicle.persistence.entity;
+package com.services.vehicle.infrastructure.persistence.entity;
 
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.BodyType;
@@ -6,6 +6,10 @@ import com.services.vehicle.domain.enums.FuelType;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.enums.VehicleClass;
 
+import com.services.vehicle.domain.valueobject.EngineNumber;
+import com.services.vehicle.domain.valueobject.LicensePlate;
+import com.services.vehicle.domain.valueobject.Vin;
+import com.services.vehicle.domain.valueobject.Mileage;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,11 +36,27 @@ public class VehicleEntity {
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false, unique = true, length = 10)
-    private String plate;
+    @Embedded
+    @AttributeOverride(
+            name="value",
+            column=@Column(
+                    name="plate",
+                    nullable=false,
+                    unique=true,
+                    length=10
+            ))
+    private LicensePlate plate;
 
-    @Column(nullable = false, unique = true, length = 20)
-    private String vin;
+    @Embedded
+    @AttributeOverride(
+            name="value",
+            column=@Column(
+                    name="vin",
+                    nullable=false,
+                    unique=true,
+                    length=20
+            ))
+    private Vin vin;
 
     @Column(nullable = false, length = 50)
     private String brand;
@@ -67,11 +87,28 @@ public class VehicleEntity {
     @Column(nullable = false, length = 20)
     private FuelType fuelType;
 
-    @Column(length = 40)
-    private String engineNumber;
+    @Embedded
+    @AttributeOverride(
+            name="value",
+            column=@Column(
+                    name="engine_number",
+                    length=40
+            ))
+    private EngineNumber engineNumber;
 
-    private Double initialKm;
-    private Double currentKm;
+    @Embedded
+    @AttributeOverride(
+            name="value",
+            column=@Column(name="initial_km")
+    )
+    private Mileage initialKm;
+
+    @Embedded
+    @AttributeOverride(
+            name="value",
+            column=@Column(name="current_km")
+    )
+    private Mileage currentKm;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
