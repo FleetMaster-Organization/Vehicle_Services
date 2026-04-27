@@ -1,6 +1,10 @@
 package com.services.vehicle.domain.valueobject;
 
+import jakarta.persistence.Embeddable;
+
 import java.util.Objects;
+
+@Embeddable
 
 public record LicensePlate(String value) {
 

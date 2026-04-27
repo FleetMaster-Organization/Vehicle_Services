@@ -21,7 +21,7 @@ public abstract class VehicleDocumentAuditMapper {
     // Entidad → Dominio
     // -------------------------------------------------------------------------
 
-    @Mapping(target = "documentId", source = "document.id")
+    @Mapping(target="documentId", source="document.id")
     public abstract VehicleDocumentAudit toDomain(VehicleDocumentAuditEntity entity);
 
     public abstract List<VehicleDocumentAudit> toDomainList(List<VehicleDocumentAuditEntity> entities);

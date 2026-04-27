@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@Builder
 public class VehicleDocument {
 
     private UUID id;
+
     private UUID vehicleId;
 
     private DocumentType documentType;
@@ -27,6 +30,7 @@ public class VehicleDocument {
 
     private LegalStatus legalStatus;
 
+    @Builder.Default
     private List<VehicleDocumentAudit> audits =
             new ArrayList<>();
 

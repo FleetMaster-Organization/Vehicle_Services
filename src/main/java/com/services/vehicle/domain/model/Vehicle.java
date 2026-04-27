@@ -4,7 +4,7 @@ import com.services.vehicle.domain.enums.*;
 
 import com.services.vehicle.domain.valueobject.EngineNumber;
 import com.services.vehicle.domain.valueobject.LicensePlate;
-import com.services.vehicle.domain.valueobject.LicenseVin;
+import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.domain.valueobject.Mileage;
 import lombok.*;
 
@@ -20,13 +20,15 @@ import java.util.UUID;
  * La persistencia es responsabilidad de la capa de infraestructura.
  */
 @Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@Builder
 public class Vehicle {
 
     private UUID id;
     private LicensePlate plate;
-    private LicenseVin vin;
+    private Vin vin;
     private String brand;
     private String line;
     private Integer modelYear;
@@ -43,14 +45,16 @@ public class Vehicle {
     private AdministrativeStatus administrativeStatus;
     private LocalDateTime createdAt;
 
+    @Builder.Default
     private List<VehicleDocument> documents = new ArrayList<>();
 
+    @Builder.Default
     private List<VehicleAudit> audits = new ArrayList<>();
 
     // -------------------------------------------------------------------------
     // Constructor de negocio
     // -------------------------------------------------------------------------
-    public Vehicle(LicensePlate plate, LicenseVin vin, String brand, String line,
+    public Vehicle(LicensePlate plate, Vin vin, String brand, String line,
                    Integer modelYear, Integer displacementCc, String color,
                    String service, VehicleClass vehicleClass, BodyType bodyType,
                    FuelType fuelType, EngineNumber engineNumber, Mileage initialKm, Mileage currentKm) {

@@ -1,8 +1,11 @@
 package com.services.vehicle.domain.valueobject;
 
+import jakarta.persistence.Embeddable;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
+@Embeddable
 public record ValidityPeriod(
         LocalDate issueDate,
         LocalDate expirationDate

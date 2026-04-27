@@ -36,7 +36,7 @@ public abstract class VehicleDocumentMapper {
     @Mapping(target = "audits", ignore = true)
     public abstract VehicleDocumentEntity toEntity(
             VehicleDocument domain,
-            VehicleEntity vehicleEntity
+            @Context VehicleEntity vehicleEntity
     );
 
     public abstract List<VehicleDocumentEntity> toEntityList(

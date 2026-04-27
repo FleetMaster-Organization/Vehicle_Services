@@ -1,5 +1,9 @@
 package com.services.vehicle.domain.valueobject;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
+
 public record EngineNumber(
         String value
 ) {

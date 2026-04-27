@@ -14,7 +14,8 @@ import java.util.UUID;
  */
 @Getter
 @NoArgsConstructor
-@Builder(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@Builder
 public class VehicleDocumentAudit {
 
     private UUID id;

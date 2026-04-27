@@ -33,11 +33,7 @@ public interface VehicleDocumentRepository extends JpaRepository<VehicleDocument
      */
     List<VehicleDocument> findByLegalStatus(LegalStatus legalStatus);
 
-    /**
-     * Retorna documentos cuya fecha de vencimiento es anterior o igual a la fecha dada.
-     * Útil para detectar documentos expirados o próximos a vencer.
-     */
-    List<VehicleDocument> findByExpirationDateBefore(LocalDate date);
+
 
 
 }

@@ -1,10 +1,14 @@
 package com.services.vehicle.domain.valueobject;
 
+import jakarta.persistence.Embeddable;
+
 import java.util.Objects;
 
-public record LicenseVin(String value) {
+@Embeddable
 
-    public LicenseVin {
+public record Vin(String value) {
+
+    public Vin {
         Objects.requireNonNull(value, "Plate cannot be null");
 
         String normalized = value

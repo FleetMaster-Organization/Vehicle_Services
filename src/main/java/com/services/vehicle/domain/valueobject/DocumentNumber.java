@@ -1,7 +1,9 @@
 package com.services.vehicle.domain.valueobject;
 
 import com.services.vehicle.domain.enums.DocumentType;
+import jakarta.persistence.Embeddable;
 
+@Embeddable
 public record DocumentNumber(
         DocumentType type,
         String value
