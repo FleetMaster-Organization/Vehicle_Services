@@ -8,7 +8,6 @@ import com.services.vehicle.domain.valueobject.ValidityPeriod;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,20 +38,35 @@ public class VehicleDocumentEntity {
     private DocumentType documentType;
 
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name="type", column=@Column(name="doc_number_type", length=30)),
-            @AttributeOverride(name="value", column=@Column(name="document_number", nullable=false, length=60))
-    })
+    @AttributeOverride(
+            name = "value",
+            column = @Column(
+                    name = "document_number",
+                    nullable = false,
+                    length = 60
+            )
+    )
     private DocumentNumber documentNumber;
+
 
     @Column(length = 100)
     private String issuedBy;
 
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name="issueDate", column=@Column(name="issue_date", nullable=false)),
-            @AttributeOverride(name="expirationDate", column=@Column(name="expiration_date", nullable=false))
-    })
+    @AttributeOverride(
+            name = "issueDate",
+            column = @Column(
+                    name = "issue_date",
+                    nullable = false
+            )
+    )
+    @AttributeOverride(
+            name = "expirationDate",
+            column = @Column(
+                    name = "expiration_date",
+                    nullable = false
+            )
+    )
     private ValidityPeriod validityPeriod;
 
     @Enumerated(EnumType.STRING)

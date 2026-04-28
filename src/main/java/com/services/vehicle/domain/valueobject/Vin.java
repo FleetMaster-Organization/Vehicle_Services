@@ -16,8 +16,8 @@ public record Vin(String value) {
                 .trim()
                 .toUpperCase();
 
-        if (!normalized.matches("^[0-17]*$")) {
-            throw new InvalidDomainDataException("invalid licenseVin");
+        if (!normalized.matches("^[A-HJ-NPR-Z0-9]{17}$")) {
+            throw new InvalidDomainDataException("invalid Vin");
         }
 
         value = normalized;
