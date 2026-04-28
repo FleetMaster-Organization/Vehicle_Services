@@ -4,6 +4,8 @@ import com.services.vehicle.domain.enums.DocumentType;
 import com.services.vehicle.domain.enums.LegalStatus;
 import com.services.vehicle.domain.valueobject.DocumentNumber;
 import com.services.vehicle.domain.valueobject.ValidityPeriod;
+import com.services.vehicle.domain.exception.InvalidDomainDataException;
+import com.services.vehicle.domain.exception.InvalidVehicleStateException;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -43,7 +45,7 @@ public class VehicleDocument {
             ValidityPeriod validityPeriod
     ) {
         if (issuedBy == null || issuedBy.isBlank()) {
-            throw new IllegalArgumentException("Issuer (issuedBy) is required");
+            throw new InvalidDomainDataException("Issuer (issuedBy) is required");
         }
 
         return new VehicleDocument(
@@ -68,7 +70,7 @@ public class VehicleDocument {
     ) {
 
         if (this.legalStatus == LegalStatus.SUSPENDED) {
-            throw new IllegalStateException(
+            throw new InvalidVehicleStateException(
                     "Cannot renew a suspended document. Lift the suspension first."
             );
         }

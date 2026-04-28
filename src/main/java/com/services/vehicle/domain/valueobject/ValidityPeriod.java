@@ -1,6 +1,7 @@
 package com.services.vehicle.domain.valueobject;
 
 import jakarta.persistence.Embeddable;
+import com.services.vehicle.domain.exception.InvalidDomainDataException;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -20,7 +21,7 @@ public record ValidityPeriod(
                 "Expiration date cannot be null");
 
         if (expirationDate.isBefore(issueDate)) {
-            throw new IllegalArgumentException(
+            throw new InvalidDomainDataException(
                     "Expiration date cannot be before issue date"
             );
         }

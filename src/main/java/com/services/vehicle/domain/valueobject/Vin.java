@@ -3,6 +3,7 @@ package com.services.vehicle.domain.valueobject;
 import jakarta.persistence.Embeddable;
 
 import java.util.Objects;
+import com.services.vehicle.domain.exception.InvalidDomainDataException;
 
 @Embeddable
 
@@ -15,8 +16,8 @@ public record Vin(String value) {
                 .trim()
                 .toUpperCase();
 
-        if (!normalized.matches("^[0-17]*$")) {
-            throw new IllegalArgumentException("invalid licenseVin");
+        if (!normalized.matches("^[A-HJ-NPR-Z0-9]{17}$")) {
+            throw new InvalidDomainDataException("invalid Vin");
         }
 
         value = normalized;

@@ -20,8 +20,9 @@ server:
 #Eureka: Servicio de registro de direcciones para la ApiGateway
 eureka:
   client:
-    serviceUrl:
-      defaultZone: ${EUREKA_URL}
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
   instance:
     # Esto es vital en Cloud Run para que Eureka no use IPs internas que cambian
     prefer-ip-address: true

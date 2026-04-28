@@ -1,21 +1,14 @@
-package com.services.vehicle.infrastructure.persistence.repository;
+package com.services.vehicle.domain.repository;
 
 import com.services.vehicle.domain.model.VehicleDocument;
 import com.services.vehicle.domain.enums.DocumentType;
 import com.services.vehicle.domain.enums.LegalStatus;
-import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Puerto de salida del dominio para la persistencia de documentos vehiculares.
- * Implementado en la capa de infraestructura.
- */
-public interface VehicleDocumentRepository extends JpaRepository<VehicleDocumentEntity, UUID> {
+
+public interface VehicleDocumentRepository {
 
 
     /**

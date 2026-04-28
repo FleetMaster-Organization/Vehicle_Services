@@ -16,17 +16,11 @@ import java.util.List;
 )
 public abstract class VehicleMapper {
 
-    // -------------------------------------------------------------------------
-    // Entidad → Dominio
-    // -------------------------------------------------------------------------
 
     public abstract Vehicle toDomain(VehicleEntity entity);
 
     public abstract List<Vehicle> toDomainList(List<VehicleEntity> entities);
 
-    // -------------------------------------------------------------------------
-    // Dominio → Entidad
-    // -------------------------------------------------------------------------
 
     @Mapping(target = "documents", ignore = true)
     @Mapping(target = "audits", ignore = true)
