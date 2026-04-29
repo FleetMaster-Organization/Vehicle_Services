@@ -1,6 +1,6 @@
 package com.services.vehicle.infrastructure.web.dto;
 
-public record VehicleRequestDTO(
+public record VehicleControllerRequestDTO(
         String plate,
         String vin,
         String brand,

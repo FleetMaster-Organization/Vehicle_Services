@@ -1,5 +1,6 @@
 package com.services.vehicle.infrastructure.persistence.mapper;
 
+import com.services.vehicle.application.dto.VehicleResponse;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 
@@ -20,7 +21,6 @@ public abstract class VehicleMapper {
     public abstract Vehicle toDomain(VehicleEntity entity);
 
     public abstract List<Vehicle> toDomainList(List<VehicleEntity> entities);
-
 
     @Mapping(target = "documents", ignore = true)
     @Mapping(target = "audits", ignore = true)

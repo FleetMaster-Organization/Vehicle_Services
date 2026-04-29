@@ -37,7 +37,7 @@ public class VehicleDocumentAudit {
             String modifiedBy
     ) {
         if (modifiedBy == null || modifiedBy.isBlank()) {
-            throw new InvalidDomainDataException("modifiedBy is required for audit trail");
+            throw new InvalidDomainDataException("Se requiere modifiedBy para el registro de auditoría.");
         }
 
         return VehicleDocumentAudit.builder()

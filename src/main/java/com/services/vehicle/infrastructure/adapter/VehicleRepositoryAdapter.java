@@ -4,6 +4,7 @@ import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
+import com.services.vehicle.domain.exception.VehicleNotFoundException;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 import com.services.vehicle.infrastructure.persistence.mapper.VehicleMapper;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,6 +30,21 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
         VehicleEntity saved = jpaVehicleRepository.save(entity);
 
         return vehicleMapper.toDomain(saved);
+    }
+
+
+    @Override
+    public Vehicle findById(UUID id) {
+        VehicleEntity vehicle = jpaVehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
+
+        return vehicleMapper.toDomain(vehicle);
+    }
+
+    @Override
+    public List<Vehicle> findAll() {
+        List<VehicleEntity> vehicles = jpaVehicleRepository.findAll();
+        return vehicleMapper.toDomainList(vehicles) ;
     }
 
     @Override

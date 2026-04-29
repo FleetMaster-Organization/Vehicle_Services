@@ -7,10 +7,15 @@ import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface VehicleRepositoryPort {
 
     Vehicle save(Vehicle vehicle);
+
+    Vehicle findById(UUID id);
+
+    List<Vehicle> findAll();
 
     Optional<VehicleEntity> findByPlate(String plate);
 

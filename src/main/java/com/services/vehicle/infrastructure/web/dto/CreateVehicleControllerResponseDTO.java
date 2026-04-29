@@ -1,9 +1,8 @@
 package com.services.vehicle.infrastructure.web.dto;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record VehicleResponseDTO(
+public record CreateVehicleControllerResponseDTO(
         UUID id,
         String message
 ) {}
