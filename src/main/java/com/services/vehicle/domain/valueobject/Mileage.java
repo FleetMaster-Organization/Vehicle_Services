@@ -11,11 +11,11 @@ public record Mileage(Double value) {
     public Mileage {
 
         Objects.requireNonNull(value,
-                "Mileage cannot be null");
+                "El kilometraje no puede ser nulo.");
 
         if (value < 0) {
             throw new InvalidDomainDataException(
-                    "Mileage cannot be negative"
+                    "El kilometraje no puede ser negativo."
             );
         }
     }

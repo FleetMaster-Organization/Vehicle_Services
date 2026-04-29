@@ -4,6 +4,7 @@ import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
+import com.services.vehicle.domain.exception.VehicleAlreadyExistsException;
 import com.services.vehicle.domain.exception.VehicleNotFoundException;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
@@ -24,6 +25,15 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
 
     @Override
     public Vehicle save(Vehicle vehicle) {
+
+        if (jpaVehicleRepository.existsByPlate(vehicle.getPlate())) {
+            throw new VehicleAlreadyExistsException(vehicle.getPlate());
+        }
+
+        if (jpaVehicleRepository.existsByVin(vehicle.getVin())) {
+            throw new VehicleAlreadyExistsException(vehicle.getVin());
+        }
+
 
         VehicleEntity entity = vehicleMapper.toEntity(vehicle);
 

@@ -15,14 +15,14 @@ public record ValidityPeriod(
     public ValidityPeriod {
 
         Objects.requireNonNull(issueDate,
-                "Issue date cannot be null");
+                "La fecha de emisión no puede ser nula.");
 
         Objects.requireNonNull(expirationDate,
-                "Expiration date cannot be null");
+                "La fecha de caducidad no puede ser nula.");
 
         if (expirationDate.isBefore(issueDate)) {
             throw new InvalidDomainDataException(
-                    "Expiration date cannot be before issue date"
+                    "La fecha de vencimiento no puede ser anterior a la fecha de emisión."
             );
         }
     }
