@@ -1,6 +1,10 @@
-package com.services.vehicle.infrastructure.web.dto;
+package com.services.vehicle.application.dto;
 
-public record VehicleRequestDTO(
+import java.time.LocalDate;
+import java.util.UUID;
+
+public record VehicleResponse(
+        UUID id,
         String plate,
         String vin,
         String brand,
@@ -13,6 +17,7 @@ public record VehicleRequestDTO(
         String bodyType,
         String fuelType,
         String engineNumber,
-        Integer initialKm,
-        Integer currentKm
+        Double initialKm,
+        Double currentKm,
+        LocalDate createdAt
 ) {}

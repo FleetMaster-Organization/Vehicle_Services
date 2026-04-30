@@ -10,14 +10,14 @@ import com.services.vehicle.domain.exception.InvalidDomainDataException;
 public record Vin(String value) {
 
     public Vin {
-        Objects.requireNonNull(value, "Plate cannot be null");
+        Objects.requireNonNull(value, "La placa no puede ser nula.");
 
         String normalized = value
                 .trim()
                 .toUpperCase();
 
         if (!normalized.matches("^[A-HJ-NPR-Z0-9]{17}$")) {
-            throw new InvalidDomainDataException("invalid Vin");
+            throw new InvalidDomainDataException("Vin no válido");
         }
 
         value = normalized;

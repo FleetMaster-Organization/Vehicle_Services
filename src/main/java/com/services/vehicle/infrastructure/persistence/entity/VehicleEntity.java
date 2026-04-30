@@ -36,27 +36,9 @@ public class VehicleEntity {
     @GeneratedValue
     private UUID id;
 
-    @Embedded
-    @AttributeOverride(
-            name="value",
-            column=@Column(
-                    name="plate",
-                    nullable=false,
-                    unique=true,
-                    length=10
-            ))
-    private LicensePlate plate;
+    private String plate;
 
-    @Embedded
-    @AttributeOverride(
-            name="value",
-            column=@Column(
-                    name="vin",
-                    nullable=false,
-                    unique=true,
-                    length=20
-            ))
-    private Vin vin;
+    private String vin;
 
     @Column(nullable = false, length = 50)
     private String brand;
@@ -87,28 +69,11 @@ public class VehicleEntity {
     @Column(nullable = false, length = 20)
     private FuelType fuelType;
 
-    @Embedded
-    @AttributeOverride(
-            name="value",
-            column=@Column(
-                    name="engine_number",
-                    length=40
-            ))
-    private EngineNumber engineNumber;
+    private String engineNumber;
 
-    @Embedded
-    @AttributeOverride(
-            name="value",
-            column=@Column(name="initial_km")
-    )
-    private Mileage initialKm;
+    private Double initialKm;
 
-    @Embedded
-    @AttributeOverride(
-            name="value",
-            column=@Column(name="current_km")
-    )
-    private Mileage currentKm;
+    private Double currentKm;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

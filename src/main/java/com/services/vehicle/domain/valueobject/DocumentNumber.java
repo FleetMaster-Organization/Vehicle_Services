@@ -14,7 +14,7 @@ public record DocumentNumber(
 
         if (value == null || value.isBlank()) {
             throw new InvalidDomainDataException(
-                    "Invalid document number"
+                    "Numero de Documento Invalido"
             );
         }
 
@@ -29,7 +29,7 @@ public record DocumentNumber(
         // Formato colombiano: alfanumérico, 8-20 caracteres, sin espacios
         if (!value.matches("^[A-Z0-9]{8,20}$")) {
             throw new InvalidDomainDataException(
-                    "SOAT number must be alphanumeric, between 8 and 20 characters, uppercase, no spaces"
+                    "El número SOAT debe ser alfanumérico, de entre 8 y 20 caracteres, en mayúsculas y sin espacios."
             );
         }
     }
@@ -38,7 +38,7 @@ public record DocumentNumber(
         // CDA emite códigos numéricos de 10-15 dígitos
         if (!value.matches("^[0-9]{10,15}$")) {
             throw new InvalidDomainDataException(
-                    "Tecnomecánica certificate must be numeric, between 10 and 15 digits"
+                    "El certificado tecnomecánico debe ser numérico, entre 10 y 15 dígitos."
             );
         }
     }

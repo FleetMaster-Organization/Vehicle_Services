@@ -45,7 +45,7 @@ public class VehicleDocument {
             ValidityPeriod validityPeriod
     ) {
         if (issuedBy == null || issuedBy.isBlank()) {
-            throw new InvalidDomainDataException("Issuer (issuedBy) is required");
+            throw new InvalidDomainDataException("Se requiere el emisor (issuedBy).");
         }
 
         return new VehicleDocument(
@@ -71,7 +71,7 @@ public class VehicleDocument {
 
         if (this.legalStatus == LegalStatus.SUSPENDED) {
             throw new InvalidVehicleStateException(
-                    "Cannot renew a suspended document. Lift the suspension first."
+                    "No se puede renovar un documento suspendido. Primero hay que levantar la suspensión."
             );
         }
 

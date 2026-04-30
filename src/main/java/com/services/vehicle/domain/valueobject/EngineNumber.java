@@ -12,11 +12,11 @@ public record EngineNumber(
     public EngineNumber {
 
         if(value == null || value.isBlank()){
-            throw new InvalidDomainDataException("Engine number cannot be blank");
+            throw new InvalidDomainDataException("El número de motor no puede estar en blanco.");
         }
 
         if(value.length() < 6){
-            throw new InvalidDomainDataException("Engine number must be at least 6 characters long");
+            throw new InvalidDomainDataException("El número de motor debe tener al menos 6 caracteres.");
         }
     }
 }

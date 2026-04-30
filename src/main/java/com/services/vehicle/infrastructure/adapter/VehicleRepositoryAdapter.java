@@ -4,14 +4,20 @@ import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
+import com.services.vehicle.domain.exception.VehicleAlreadyExistsException;
+import com.services.vehicle.domain.exception.VehicleNotFoundException;
 import com.services.vehicle.domain.model.Vehicle;
+import com.services.vehicle.domain.valueobject.LicensePlate;
+import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 import com.services.vehicle.infrastructure.persistence.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,21 +29,55 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
     @Override
     public Vehicle save(Vehicle vehicle) {
 
+        if (jpaVehicleRepository.existsByPlate(vehicle.getPlate().toString())) {
+            throw new VehicleAlreadyExistsException(vehicle.getPlate());
+        }
+
+        if (jpaVehicleRepository.existsByVin(vehicle.getVin().toString())) {
+            throw new VehicleAlreadyExistsException(vehicle.getVin());
+        }
+
+
         VehicleEntity entity = vehicleMapper.toEntity(vehicle);
 
         VehicleEntity saved = jpaVehicleRepository.save(entity);
 
+        saved.setAdministrativeStatus(AdministrativeStatus.AVAILABLE);
+        saved.setOperationalStatus(OperationalStatus.ACTIVE);
+
         return vehicleMapper.toDomain(saved);
     }
 
+
     @Override
-    public Optional<VehicleEntity> findByPlate(String plate) {
-        return Optional.empty();
+    public Vehicle findById(UUID id) {
+        VehicleEntity vehicle = jpaVehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
+
+        return vehicleMapper.toDomain(vehicle);
     }
 
     @Override
-    public Optional<VehicleEntity> findByVin(String vin) {
-        return Optional.empty();
+    public List<Vehicle> findAll() {
+        List<VehicleEntity> vehicles = jpaVehicleRepository.findAll();
+        return vehicleMapper.toDomainList(vehicles) ;
+    }
+
+    @Override
+    public Vehicle findByPlate(LicensePlate plate) {
+
+        VehicleEntity entity = jpaVehicleRepository.findByPlate(plate.value())
+                .orElseThrow(() -> new VehicleNotFoundException(plate));
+
+        return vehicleMapper.toDomain(entity);
+    }
+
+    @Override
+    public Vehicle findByVin(Vin vin) {
+        VehicleEntity vehicle = jpaVehicleRepository.findByVin(vin.value())
+                .orElseThrow(() -> new VehicleNotFoundException(vin));
+
+        return vehicleMapper.toDomain(vehicle);
     }
 
     @Override

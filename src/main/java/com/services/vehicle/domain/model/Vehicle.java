@@ -22,10 +22,7 @@ import java.util.UUID;
  * La persistencia es responsabilidad de la capa de infraestructura.
  */
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Vehicle {
 
     private UUID id;
@@ -47,10 +44,7 @@ public class Vehicle {
     private AdministrativeStatus administrativeStatus;
     private LocalDateTime createdAt;
 
-    @Builder.Default
     private List<VehicleDocument> documents = new ArrayList<>();
-
-    @Builder.Default
     private List<VehicleAudit> audits = new ArrayList<>();
 
     // -------------------------------------------------------------------------
@@ -80,6 +74,44 @@ public class Vehicle {
         this.createdAt = LocalDateTime.now();
         this.documents = new ArrayList<>();
         this.audits = new ArrayList<>();
+    }
+
+    public static Vehicle rehydrate(
+            UUID id,
+            LicensePlate plate,
+            Vin vin,
+            String brand,
+            String line,
+            Integer modelYear,
+            Integer displacementCc,
+            String color,
+            String service,
+            VehicleClass vehicleClass,
+            BodyType bodyType,
+            FuelType fuelType,
+            EngineNumber engineNumber,
+            Mileage initialKm,
+            Mileage currentKm,
+            OperationalStatus operationalStatus,
+            AdministrativeStatus administrativeStatus,
+            LocalDateTime createdAt,
+            List<VehicleDocument> documents,
+            List<VehicleAudit> audits
+    ) {
+        Vehicle v = new Vehicle(
+                plate, vin, brand, line, modelYear, displacementCc,
+                color, service, vehicleClass, bodyType, fuelType,
+                engineNumber, initialKm, currentKm
+        );
+
+        v.id = id;
+        v.operationalStatus = operationalStatus;
+        v.administrativeStatus = administrativeStatus;
+        v.createdAt = createdAt;
+        v.documents = documents;
+        v.audits = audits;
+
+        return v;
     }
 
     // -------------------------------------------------------------------------

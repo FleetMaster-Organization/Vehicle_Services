@@ -10,7 +10,7 @@ import com.services.vehicle.domain.exception.InvalidDomainDataException;
 public record LicensePlate(String value) {
 
     public LicensePlate {
-        Objects.requireNonNull(value, "Plate cannot be null");
+        Objects.requireNonNull(value, "La placa no puede ser nula");
 
         String normalized = value
                 .trim()
@@ -18,7 +18,7 @@ public record LicensePlate(String value) {
 
         if (!normalized.matches("^[A-Z]{3}[0-9]{3}$")) {
             throw new InvalidDomainDataException(
-                    "Invalid license plate format"
+                    "Formato de placa  invalido"
             );
         }
 
