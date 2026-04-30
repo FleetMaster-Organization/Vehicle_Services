@@ -18,7 +18,7 @@ public record LicensePlate(String value) {
 
         if (!normalized.matches("^[A-Z]{3}[0-9]{3}$")) {
             throw new InvalidDomainDataException(
-                    "Formato de licencia invalido"
+                    "Formato de placa  invalido"
             );
         }
 

@@ -9,7 +9,13 @@ public record VehicleControllerResponseDTO(
         String brand,
         String line,
         Integer modelYear,
-        Integer currentKm,
-        String operationalStatus,
-        String administrativeStatus
+        Integer displacementCc,
+        String color,
+        String service,
+        String vehicleClass,
+        String bodyType,
+        String fuelType,
+        String engineNumber,
+        Double initialKm,
+        Double currentKm
 ) {}

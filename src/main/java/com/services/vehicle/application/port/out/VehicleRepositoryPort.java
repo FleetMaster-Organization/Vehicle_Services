@@ -3,6 +3,8 @@ package com.services.vehicle.application.port.out;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.model.Vehicle;
+import com.services.vehicle.domain.valueobject.LicensePlate;
+import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 
 import java.util.List;
@@ -17,9 +19,9 @@ public interface VehicleRepositoryPort {
 
     List<Vehicle> findAll();
 
-    Optional<VehicleEntity> findByPlate(String plate);
+    Vehicle findByPlate(LicensePlate plate);
 
-    Optional<VehicleEntity> findByVin(String vin);
+    Vehicle findByVin(Vin vin);
 
     List<VehicleEntity> findByOperationalStatus(OperationalStatus status);
 

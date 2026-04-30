@@ -13,6 +13,6 @@ public record VehicleControllerRequestDTO(
         String bodyType,
         String fuelType,
         String engineNumber,
-        Integer initialKm,
-        Integer currentKm
+        Double initialKm,
+        Double currentKm
 ) {}

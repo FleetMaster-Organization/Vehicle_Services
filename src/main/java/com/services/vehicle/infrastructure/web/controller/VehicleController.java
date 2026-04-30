@@ -2,9 +2,9 @@ package com.services.vehicle.infrastructure.web.controller;
 
 import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.dto.VehicleResponse;
-import com.services.vehicle.application.port.in.CreateVehicleUseCase;
-import com.services.vehicle.application.port.in.GetAllVehiclesUseCase;
-import com.services.vehicle.application.port.in.GetVehicleByIdUseCase;
+import com.services.vehicle.application.port.in.*;
+import com.services.vehicle.domain.valueobject.LicensePlate;
+import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.web.dto.CreateVehicleControllerResponseDTO;
 import com.services.vehicle.infrastructure.web.dto.VehicleControllerRequestDTO;
 import com.services.vehicle.infrastructure.web.dto.VehicleControllerResponseDTO;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +25,8 @@ public class VehicleController {
     private final VehicleControllerMapper vehicleControllerMapper;
     private final CreateVehicleUseCase createVehicleUseCase;
     private final GetVehicleByIdUseCase getVehicleByIdUseCase;
+    private final GetVehiclesByPlateUseCase getVehicleByPlateUseCase;
+    private final GetVehiclesByVinUseCase  getVehiclesByVinUseCase;
     private final GetAllVehiclesUseCase getAllVehiclesUseCase;
 
     @PostMapping
@@ -65,5 +66,26 @@ public class VehicleController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/plate/{plate}")
+    public ResponseEntity<VehicleControllerResponseDTO> getVehicleByPlate(@PathVariable String plate){
+
+        LicensePlate licensePlate = new LicensePlate(plate);
+
+        VehicleResponse response = getVehicleByPlateUseCase.execute(licensePlate);
+
+        return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
+    }
+
+    @GetMapping("/vin/{vin}")
+    public ResponseEntity<VehicleControllerResponseDTO> getVehiclesByVin(@PathVariable String vin){
+
+        Vin vinNumber = new Vin(vin);
+
+        VehicleResponse response = getVehiclesByVinUseCase.execute(vinNumber);
+
+        return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
+    }
+
 
 }

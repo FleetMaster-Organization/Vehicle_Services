@@ -1,5 +1,8 @@
 package com.services.vehicle.domain.exception;
 
+import com.services.vehicle.domain.valueobject.LicensePlate;
+import com.services.vehicle.domain.valueobject.Vin;
+
 import java.util.UUID;
 
 /**
@@ -16,10 +19,16 @@ public class VehicleNotFoundException extends RuntimeException {
         this.identifier = String.valueOf(vehicleId);
     }
 
-    public VehicleNotFoundException(String plate) {
+    public VehicleNotFoundException(Vin vin) {
+        super("Vehículo no encontrado con ID: " + vin);
+        this.vehicleId = null;
+        this.identifier = vin.value();
+    }
+
+    public VehicleNotFoundException(LicensePlate plate) {
         super("Vehículo no encontrado con placa: " + plate);
         this.vehicleId = null;
-        this.identifier = plate;
+        this.identifier = plate.value();
     }
 
     public UUID getVehicleId() { return vehicleId; }

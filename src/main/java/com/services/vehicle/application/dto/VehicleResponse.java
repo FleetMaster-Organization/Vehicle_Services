@@ -1,5 +1,6 @@
 package com.services.vehicle.application.dto;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record VehicleResponse(
@@ -9,9 +10,14 @@ public record VehicleResponse(
         String brand,
         String line,
         Integer modelYear,
+        Integer displacementCc,
+        String color,
+        String service,
+        String vehicleClass,
+        String bodyType,
+        String fuelType,
+        String engineNumber,
         Double initialKm,
         Double currentKm,
-        String engineNumber,
-        String operationalStatus,
-        String administrativeStatus
+        LocalDate createdAt
 ) {}
