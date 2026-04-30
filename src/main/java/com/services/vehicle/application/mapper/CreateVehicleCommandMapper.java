@@ -8,46 +8,29 @@ import com.services.vehicle.domain.valueobject.EngineNumber;
 import com.services.vehicle.domain.valueobject.Mileage;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
-@Mapper(
-        componentModel = "spring",
-        imports = {
-                LicensePlate.class,
-                Vin.class,
-                EngineNumber.class,
-                Mileage.class
-        }
-)
+
+
+@Mapper(componentModel = "spring", builder = @org.mapstruct.Builder(disableBuilder = true))
 public interface CreateVehicleCommandMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt",
-            expression = "java(java.time.LocalDateTime.now())")
+    default Vehicle toDomain(CreateVehicleCommand cmd) {
 
-    @Mapping(target = "operationalStatus", constant = "ACTIVE")
-    @Mapping(target = "administrativeStatus", constant = "AVAILABLE")
-
-    @Mapping(target = "documents",
-            expression = "java(new java.util.ArrayList<>())")
-
-    @Mapping(target = "audits",
-            expression = "java(new java.util.ArrayList<>())")
-
-    @Mapping(target = "plate",
-            expression = "java(new LicensePlate(cmd.plate()))")
-
-    @Mapping(target = "vin",
-            expression = "java(new Vin(cmd.vin()))")
-
-    @Mapping(target = "engineNumber",
-            expression = "java(new EngineNumber(cmd.engineNumber()))")
-
-    @Mapping(target = "initialKm",
-            expression = "java(new Mileage(cmd.initialKm()))")
-
-    @Mapping(target = "currentKm",
-            expression = "java(new Mileage(cmd.currentKm()))")
-
-    Vehicle toDomain(CreateVehicleCommand cmd);
+        return new Vehicle(
+                new LicensePlate(cmd.plate()),
+                new Vin(cmd.vin()),
+                cmd.brand(),
+                cmd.line(),
+                cmd.modelYear(),
+                cmd.displacementCc(),
+                cmd.color(),
+                cmd.service(),
+                cmd.vehicleClass(),
+                cmd.bodyType(),
+                cmd.fuelType(),
+                new EngineNumber(cmd.engineNumber()),
+                new Mileage(cmd.initialKm()),
+                new Mileage(cmd.currentKm())
+        );
+    }
 }
