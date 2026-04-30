@@ -14,9 +14,7 @@ import com.services.vehicle.infrastructure.persistence.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -29,20 +27,9 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
     @Override
     public Vehicle save(Vehicle vehicle) {
 
-        if (jpaVehicleRepository.existsByPlate(vehicle.getPlate().toString())) {
-            throw new VehicleAlreadyExistsException(vehicle.getPlate());
-        }
-
-        if (jpaVehicleRepository.existsByVin(vehicle.getVin().toString())) {
-            throw new VehicleAlreadyExistsException(vehicle.getVin());
-        }
-
         VehicleEntity entity = vehicleMapper.toEntity(vehicle);
 
         VehicleEntity saved = jpaVehicleRepository.save(entity);
-
-        saved.setAdministrativeStatus(AdministrativeStatus.AVAILABLE);
-        saved.setOperationalStatus(OperationalStatus.ACTIVE);
 
         return vehicleMapper.toDomain(saved);
     }
@@ -93,11 +80,11 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
 
     @Override
     public boolean existsByPlate(String plate) {
-        return false;
+        return jpaVehicleRepository.existsByPlate(plate);
     }
 
     @Override
     public boolean existsByVin(String vin) {
-        return false;
+        return jpaVehicleRepository.existsByVin(vin);
     }
 }
