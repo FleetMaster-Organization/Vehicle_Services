@@ -3,6 +3,8 @@ package com.services.vehicle.infrastructure.web.controller;
 import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.dto.VehicleResponse;
 import com.services.vehicle.application.port.in.*;
+import com.services.vehicle.domain.enums.AdministrativeStatus;
+import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.web.dto.CreateVehicleControllerResponseDTO;
@@ -28,6 +30,8 @@ public class VehicleController {
     private final GetVehiclesByPlateUseCase getVehicleByPlateUseCase;
     private final GetVehiclesByVinUseCase  getVehiclesByVinUseCase;
     private final GetAllVehiclesUseCase getAllVehiclesUseCase;
+    private final GetAllVehiclesByAdministrativeStatus getVehiclesByAdministrativeStatus;
+    private final GetAllVehiclesByOperationalStatus getVehiclesByOperationalStatus;
 
     @PostMapping
     public ResponseEntity<CreateVehicleControllerResponseDTO> createVehicle(
@@ -85,6 +89,34 @@ public class VehicleController {
         VehicleResponse response = getVehiclesByVinUseCase.execute(vinNumber);
 
         return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
+    }
+
+    @GetMapping("/operational-status/{operationalStatus}")
+    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByOperationalStatus(@PathVariable String operationalStatus){
+
+        OperationalStatus operationalStatusEnum = OperationalStatus.valueOf(operationalStatus.toUpperCase());
+
+        List<VehicleResponse> vehicles = getVehiclesByOperationalStatus.execute(operationalStatusEnum);
+
+        List<VehicleControllerResponseDTO> response = vehicles.stream()
+                .map(vehicleControllerMapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/administrative-status/{administrativeStatus}")
+    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByAdministrativeStatus(@PathVariable String administrativeStatus){
+
+        AdministrativeStatus administrativeStatusEnum = AdministrativeStatus.valueOf(administrativeStatus.toUpperCase());
+
+        List<VehicleResponse> vehicles = getVehiclesByAdministrativeStatus.execute(administrativeStatusEnum);
+
+        List<VehicleControllerResponseDTO> response =  vehicles.stream()
+                .map(vehicleControllerMapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
 

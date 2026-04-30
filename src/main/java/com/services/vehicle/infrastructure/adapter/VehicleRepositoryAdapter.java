@@ -37,7 +37,6 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
             throw new VehicleAlreadyExistsException(vehicle.getVin());
         }
 
-
         VehicleEntity entity = vehicleMapper.toEntity(vehicle);
 
         VehicleEntity saved = jpaVehicleRepository.save(entity);
@@ -81,13 +80,15 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
     }
 
     @Override
-    public List<VehicleEntity> findByOperationalStatus(OperationalStatus status) {
-        return List.of();
+    public List<Vehicle> findByOperationalStatus(OperationalStatus status) {
+        List<VehicleEntity> vehicles = jpaVehicleRepository.findByOperationalStatus(status);
+        return vehicleMapper.toDomainList(vehicles);
     }
 
     @Override
-    public List<VehicleEntity> findByAdministrativeStatus(AdministrativeStatus status) {
-        return List.of();
+    public List<Vehicle> findByAdministrativeStatus(AdministrativeStatus status) {
+        List<VehicleEntity> vehicles = jpaVehicleRepository.findByAdministrativeStatus(status);
+        return vehicleMapper.toDomainList(vehicles);
     }
 
     @Override

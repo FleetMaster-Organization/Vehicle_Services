@@ -5,10 +5,8 @@ import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
-import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface VehicleRepositoryPort {
@@ -23,9 +21,9 @@ public interface VehicleRepositoryPort {
 
     Vehicle findByVin(Vin vin);
 
-    List<VehicleEntity> findByOperationalStatus(OperationalStatus status);
+    List<Vehicle> findByOperationalStatus(OperationalStatus status);
 
-    List<VehicleEntity> findByAdministrativeStatus(AdministrativeStatus status);
+    List<Vehicle> findByAdministrativeStatus(AdministrativeStatus status);
 
     boolean existsByPlate(String plate);
 

@@ -13,6 +13,6 @@ public class VehicleAlreadyExistsException extends RuntimeException {
     }
 
     public VehicleAlreadyExistsException(Vin vin) {
-        super("Ya existe un vehículo con placa: " + vin);
+        super("Ya existe un vehículo con ese codigo vin: " + vin);
     }
 }
