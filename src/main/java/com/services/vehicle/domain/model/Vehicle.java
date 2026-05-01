@@ -33,7 +33,7 @@ public class Vehicle {
     private Integer modelYear;
     private Integer displacementCc;
     private String color;
-    private String service;
+    private ServiceType service;
     private VehicleClass vehicleClass;
     private BodyType bodyType;
     private FuelType fuelType;
@@ -43,6 +43,7 @@ public class Vehicle {
     private OperationalStatus operationalStatus;
     private AdministrativeStatus administrativeStatus;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     private List<VehicleDocument> documents = new ArrayList<>();
     private List<VehicleAudit> audits = new ArrayList<>();
@@ -52,7 +53,7 @@ public class Vehicle {
     // -------------------------------------------------------------------------
     public Vehicle(LicensePlate plate, Vin vin, String brand, String line,
                    Integer modelYear, Integer displacementCc, String color,
-                   String service, VehicleClass vehicleClass, BodyType bodyType,
+                   ServiceType service, VehicleClass vehicleClass, BodyType bodyType,
                    FuelType fuelType, EngineNumber engineNumber, Mileage initialKm, Mileage currentKm) {
 
         this.plate = plate;
@@ -69,9 +70,10 @@ public class Vehicle {
         this.engineNumber = engineNumber;
         this.initialKm = initialKm;
         this.currentKm = currentKm;
-        this.operationalStatus = OperationalStatus.ACTIVE;
-        this.administrativeStatus = AdministrativeStatus.AVAILABLE;
+        this.operationalStatus = OperationalStatus.ACTIVO;
+        this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
         this.documents = new ArrayList<>();
         this.audits = new ArrayList<>();
     }
@@ -85,7 +87,7 @@ public class Vehicle {
             Integer modelYear,
             Integer displacementCc,
             String color,
-            String service,
+            ServiceType service,
             VehicleClass vehicleClass,
             BodyType bodyType,
             FuelType fuelType,
@@ -95,6 +97,7 @@ public class Vehicle {
             OperationalStatus operationalStatus,
             AdministrativeStatus administrativeStatus,
             LocalDateTime createdAt,
+            LocalDateTime updatedAt,
             List<VehicleDocument> documents,
             List<VehicleAudit> audits
     ) {
@@ -108,6 +111,7 @@ public class Vehicle {
         v.operationalStatus = operationalStatus;
         v.administrativeStatus = administrativeStatus;
         v.createdAt = createdAt;
+        v.updatedAt = updatedAt;
         v.documents = documents;
         v.audits = audits;
 
@@ -129,38 +133,38 @@ public class Vehicle {
     }
 
     public void sendToMaintenance() {
-        if (this.operationalStatus == OperationalStatus.SCRAPPED) {
+        if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException(
                     "Un vehículo dado de baja no puede enviarse a mantenimiento."
             );
         }
-        if (this.operationalStatus == OperationalStatus.IN_MAINTENANCE) {
+        if (this.operationalStatus == OperationalStatus.EN_MANTENIMIENTO) {
             throw new InvalidVehicleStateException(
                     "El vehículo ya está en mantenimiento.."
             );
         }
-        this.operationalStatus = OperationalStatus.IN_MAINTENANCE;
-        this.administrativeStatus = AdministrativeStatus.RESERVED;
+        this.operationalStatus = OperationalStatus.EN_MANTENIMIENTO;
+        this.administrativeStatus = AdministrativeStatus.RESERVADO;
     }
 
     public void activate() {
-        if (this.operationalStatus == OperationalStatus.SCRAPPED) {
+        if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException("Un vehículo dado de baja no puede reactivarse.");
         }
-        this.operationalStatus = OperationalStatus.ACTIVE;
-        this.administrativeStatus = AdministrativeStatus.AVAILABLE;
+        this.operationalStatus = OperationalStatus.ACTIVO;
+        this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
     }
 
     public void scrap() {
-        if (this.operationalStatus == OperationalStatus.SCRAPPED) {
+        if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
         }
-        this.operationalStatus = OperationalStatus.SCRAPPED;
-        this.administrativeStatus = AdministrativeStatus.SUSPENDED;
+        this.operationalStatus = OperationalStatus.DESECHADO;
+        this.administrativeStatus = AdministrativeStatus.SUSPENDIDO;
     }
 
     public void assign(LocalDate today) {
-        if (this.operationalStatus != OperationalStatus.ACTIVE) {
+        if (this.operationalStatus != OperationalStatus.ACTIVO) {
             throw new InvalidVehicleStateException(
                     "Solo se pueden asignar vehículos ACTIVOS."
             );
@@ -170,14 +174,14 @@ public class Vehicle {
                     "No se puede asignar el vehículo: uno o más documentos requeridos están vencidos o faltan."
             );
         }
-        this.administrativeStatus = AdministrativeStatus.ASSIGNED;
+        this.administrativeStatus = AdministrativeStatus.ASIGNADO;
     }
 
     public void release() {
-        if (this.administrativeStatus != AdministrativeStatus.ASSIGNED) {
+        if (this.administrativeStatus != AdministrativeStatus.ASIGNADO) {
             throw new InvalidVehicleStateException("El vehículo no está actualmente asignado.");
         }
-        this.administrativeStatus = AdministrativeStatus.AVAILABLE;
+        this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
     }
 
     public void addDocument(VehicleDocument document) {
@@ -218,7 +222,7 @@ public class Vehicle {
         List<DocumentType> required = List.of(
                 DocumentType.SOAT,
                 DocumentType.TECNO,
-                DocumentType.PROPERTY_CARD
+                DocumentType.TARJETA_PROPIEDAD
         );
         return required.stream()
                 .allMatch(type -> hasValidDocument(type, today));

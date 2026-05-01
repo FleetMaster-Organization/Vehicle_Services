@@ -1,10 +1,6 @@
 package com.services.vehicle.infrastructure.persistence.entity;
 
-import com.services.vehicle.domain.enums.AdministrativeStatus;
-import com.services.vehicle.domain.enums.BodyType;
-import com.services.vehicle.domain.enums.FuelType;
-import com.services.vehicle.domain.enums.OperationalStatus;
-import com.services.vehicle.domain.enums.VehicleClass;
+import com.services.vehicle.domain.enums.*;
 
 import com.services.vehicle.domain.valueobject.EngineNumber;
 import com.services.vehicle.domain.valueobject.LicensePlate;
@@ -36,8 +32,10 @@ public class VehicleEntity {
     @GeneratedValue
     private UUID id;
 
+    @Column(unique = true, updatable = false)
     private String plate;
 
+    @Column(unique = true, updatable = false)
     private String vin;
 
     @Column(nullable = false, length = 50)
@@ -46,7 +44,7 @@ public class VehicleEntity {
     @Column(nullable = false, length = 60)
     private String line;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true, updatable = false)
     private Integer modelYear;
 
     private Integer displacementCc;
@@ -54,8 +52,9 @@ public class VehicleEntity {
     @Column(length = 30)
     private String color;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 50)
-    private String service;
+    private ServiceType service;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -83,8 +82,11 @@ public class VehicleEntity {
     @Column(nullable = false, length = 20)
     private AdministrativeStatus administrativeStatus;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
     @Builder.Default
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)

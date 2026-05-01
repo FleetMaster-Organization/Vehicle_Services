@@ -53,6 +53,7 @@ public abstract class VehicleMapper {
                 entity.getOperationalStatus(),
                 entity.getAdministrativeStatus(),
                 entity.getCreatedAt(),
+                entity.getUpdatedAt(),
                 entity.getDocuments() != null
                         ? vehicleDocumentMapper.toDomainList(entity.getDocuments())
                         : new ArrayList<>(),

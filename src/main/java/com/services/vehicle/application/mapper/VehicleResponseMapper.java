@@ -7,7 +7,7 @@ import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Mileage;
 import com.services.vehicle.domain.valueobject.Vin;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+
 
 @Mapper(componentModel = "spring")
 public interface VehicleResponseMapper {

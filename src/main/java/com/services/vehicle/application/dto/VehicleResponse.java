@@ -19,5 +19,6 @@ public record VehicleResponse(
         String engineNumber,
         Double initialKm,
         Double currentKm,
-        LocalDate createdAt
+        LocalDate createdAt,
+        LocalDate updatedAt
 ) {}

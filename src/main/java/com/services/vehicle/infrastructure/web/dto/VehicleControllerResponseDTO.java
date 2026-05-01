@@ -1,5 +1,6 @@
 package com.services.vehicle.infrastructure.web.dto;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record VehicleControllerResponseDTO(
@@ -17,5 +18,7 @@ public record VehicleControllerResponseDTO(
         String fuelType,
         String engineNumber,
         Double initialKm,
-        Double currentKm
+        Double currentKm,
+        LocalDate createdAt,
+        LocalDate updatedAt
 ) {}

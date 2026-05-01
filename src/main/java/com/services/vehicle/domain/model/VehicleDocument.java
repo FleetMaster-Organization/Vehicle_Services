@@ -56,8 +56,8 @@ public class VehicleDocument {
                 issuedBy,
                 validityPeriod,
                 validityPeriod.isExpired(LocalDate.now())
-                        ? LegalStatus.EXPIRED
-                        : LegalStatus.VALID,
+                        ? LegalStatus.EXPIRADO
+                        : LegalStatus.VALIDO,
                 new ArrayList<>()
         );
     }
@@ -69,7 +69,7 @@ public class VehicleDocument {
             LocalDate newExpirationDate
     ) {
 
-        if (this.legalStatus == LegalStatus.SUSPENDED) {
+        if (this.legalStatus == LegalStatus.SUSPENDIDO) {
             throw new InvalidVehicleStateException(
                     "No se puede renovar un documento suspendido. Primero hay que levantar la suspensión."
             );
@@ -84,25 +84,25 @@ public class VehicleDocument {
                         newExpirationDate
                 );
 
-        this.legalStatus = LegalStatus.VALID;
+        this.legalStatus = LegalStatus.VALIDO;
     }
 
     public boolean isValid(LocalDate today) {
-        return legalStatus == LegalStatus.VALID
+        return legalStatus == LegalStatus.VALIDO
                 && validityPeriod.isValid(today);
     }
 
     public void checkExpiration(LocalDate today) {
-        if (this.legalStatus == LegalStatus.SUSPENDED) {
+        if (this.legalStatus == LegalStatus.SUSPENDIDO) {
             return; // la suspensión tiene precedencia
         }
 
         if (validityPeriod.isExpired(today)) {
-            this.legalStatus = LegalStatus.EXPIRED;
+            this.legalStatus = LegalStatus.EXPIRADO;
         } else if (validityPeriod.expiresWithin(30, today)) {
-            this.legalStatus = LegalStatus.PENDING_RENEWAL;
+            this.legalStatus = LegalStatus.RENOVACION_PENDIENTE;
         } else {
-            this.legalStatus = LegalStatus.VALID;
+            this.legalStatus = LegalStatus.VALIDO;
         }
     }
 
@@ -114,11 +114,11 @@ public class VehicleDocument {
     }
 
     public void suspend() {
-        this.legalStatus = LegalStatus.SUSPENDED;
+        this.legalStatus = LegalStatus.SUSPENDIDO;
     }
 
     public void markPendingRenewal() {
-        this.legalStatus = LegalStatus.PENDING_RENEWAL;
+        this.legalStatus = LegalStatus.RENOVACION_PENDIENTE;
     }
 
 
