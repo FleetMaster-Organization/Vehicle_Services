@@ -36,6 +36,7 @@ public class VehicleController {
     private final GetAllVehiclesByOperationalStatusUseCase getVehiclesByOperationalStatus;
     private final UpdateVehicleByIdUseCase updateVehicleByIdUseCase;
     private final DeleteVehicleByIdUseCase deleteVehicleByIdUseCase;
+    private final MarkVehicleAsSoldUseCase markVehicleAsSoldUseCase;
 
     @PostMapping
     public ResponseEntity<CreateVehicleControllerResponseDTO> createVehicle(
@@ -75,7 +76,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/plate/{plate}")
+    @GetMapping("/{plate}/plate")
     public ResponseEntity<VehicleControllerResponseDTO> getVehicleByPlate(@PathVariable String plate){
 
         LicensePlate licensePlate = new LicensePlate(plate);
@@ -85,7 +86,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
     }
 
-    @GetMapping("/vin/{vin}")
+    @GetMapping("{vin}/vin/")
     public ResponseEntity<VehicleControllerResponseDTO> getVehiclesByVin(@PathVariable String vin){
 
         Vin vinNumber = new Vin(vin);
@@ -95,7 +96,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
     }
 
-    @GetMapping("/operational-status/{operationalStatus}")
+    @GetMapping("/{operationalStatus}/operational-status")
     public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByOperationalStatus(@PathVariable String operationalStatus){
 
         OperationalStatus operationalStatusEnum = OperationalStatus.valueOf(operationalStatus.toUpperCase());
@@ -109,7 +110,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/administrative-status/{administrativeStatus}")
+    @GetMapping("/{administrativeStatus}/administrative-status")
     public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByAdministrativeStatus(@PathVariable String administrativeStatus){
 
         AdministrativeStatus administrativeStatusEnum = AdministrativeStatus.valueOf(administrativeStatus.toUpperCase());
@@ -123,7 +124,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}/update")
     public ResponseEntity<Void> updateVehicle(
             @PathVariable UUID id,
             @RequestBody UpdateVehicleControllerRequestDTO request) {
@@ -135,9 +136,17 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> deleteVehicleById(@PathVariable UUID id) {
         deleteVehicleByIdUseCase.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/sell")
+    public ResponseEntity<Void> sellVehicle(@PathVariable UUID id) {
+
+        markVehicleAsSoldUseCase.markVehicleAsSold(id);
+
         return ResponseEntity.noContent().build();
     }
 

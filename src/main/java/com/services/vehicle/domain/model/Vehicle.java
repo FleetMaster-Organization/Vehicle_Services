@@ -220,6 +220,11 @@ public class Vehicle {
             throw new InvalidVehicleStateException("Un vehículo desechado no puede venderse.");
         }
 
+        if (this.administrativeStatus == AdministrativeStatus.SUSPENDIDO) {
+            throw new InvalidVehicleStateException("El vehiculo se encuentra actualmente suspendido," +
+                    " lo que imposibilita su venta");
+        }
+
         this.administrativeStatus = AdministrativeStatus.VENDIDO;
 
     }
