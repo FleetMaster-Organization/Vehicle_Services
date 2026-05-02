@@ -44,7 +44,7 @@ public class VehicleEntity {
     @Column(nullable = false, length = 60)
     private String line;
 
-    @Column(nullable = false, unique = true, updatable = false)
+    @Column(nullable = false, updatable = false)
     private Integer modelYear;
 
     private Integer displacementCc;
@@ -95,4 +95,15 @@ public class VehicleEntity {
     @Builder.Default
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VehicleAuditEntity> audits = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

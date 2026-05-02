@@ -2,6 +2,7 @@ package com.services.vehicle.application.usecase;
 
 import com.services.vehicle.application.dto.VehicleResponse;
 import com.services.vehicle.application.mapper.VehicleResponseMapper;
+import com.services.vehicle.application.port.in.GetAllVehiclesByAdministrativeStatusUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.model.Vehicle;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetAllVehiclesByAdministrativeStatus implements com.services.vehicle.application.port.in.GetAllVehiclesByAdministrativeStatus {
+public class GetAllVehiclesByAdministrativeStatusService implements GetAllVehiclesByAdministrativeStatusUseCase {
     private final VehicleRepositoryPort vehicleRepositoryPort;
     private final VehicleResponseMapper vehicleResponseMapper;
 

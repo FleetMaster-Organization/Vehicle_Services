@@ -1,10 +1,8 @@
 package com.services.vehicle.infrastructure.adapter;
 
-import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
-import com.services.vehicle.domain.exception.VehicleAlreadyExistsException;
 import com.services.vehicle.domain.exception.VehicleNotFoundException;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.valueobject.LicensePlate;
@@ -77,6 +75,7 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
         List<VehicleEntity> vehicles = jpaVehicleRepository.findByAdministrativeStatus(status);
         return vehicleMapper.toDomainList(vehicles);
     }
+
 
     @Override
     public boolean existsByPlate(String plate) {

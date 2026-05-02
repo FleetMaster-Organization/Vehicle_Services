@@ -16,9 +16,16 @@ public record Mileage(Double value) {
                     "El kilometraje no puede ser negativo."
             );
         }
+
+
     }
 
-    public boolean greaterThan(Mileage other){
-        return value > other.value;
+    public boolean greaterThan(Mileage other) {
+        return this.value > other.value;
     }
+
+    public boolean lessThan(Mileage other) {
+        return this.value < other.value;
+    }
+
 }

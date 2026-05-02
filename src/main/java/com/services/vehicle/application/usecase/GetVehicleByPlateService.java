@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class GetVehicleByPlateUseCase implements GetVehiclesByPlateUseCase {
+public class GetVehicleByPlateService implements GetVehiclesByPlateUseCase {
     private final VehicleRepositoryPort vehicleRepositoryPort;
     private final VehicleResponseMapper vehicleResponseMapper;
 

@@ -19,6 +19,8 @@ public record VehicleControllerResponseDTO(
         String engineNumber,
         Double initialKm,
         Double currentKm,
+        String operationalStatus,
+        String administrativeStatus,
         LocalDate createdAt,
         LocalDate updatedAt
 ) {}

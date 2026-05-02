@@ -4,5 +4,6 @@ public enum AdministrativeStatus {
     DISPONIBLE,
     ASIGNADO,
     RESERVADO,
+    VENDIDO,
     SUSPENDIDO
 }

@@ -56,6 +56,13 @@ public class Vehicle {
                    ServiceType service, VehicleClass vehicleClass, BodyType bodyType,
                    FuelType fuelType, EngineNumber engineNumber, Mileage initialKm, Mileage currentKm) {
 
+        if (currentKm.lessThan(initialKm)) {
+            throw new InvalidDomainDataException(
+                    "El kilometraje actual no puede ser menor al inicial"
+            );
+        }
+
+
         this.plate = plate;
         this.vin = vin;
         this.brand = brand;
@@ -118,6 +125,8 @@ public class Vehicle {
         return v;
     }
 
+
+
     // -------------------------------------------------------------------------
     // Lógica de negocio
     // -------------------------------------------------------------------------
@@ -125,7 +134,7 @@ public class Vehicle {
     public void updateCurrentKm(Mileage newMileage) {
         if (!newMileage.greaterThan(currentKm)) {
             throw new InvalidDomainDataException(
-                    "El nuevo kilometraje (%d km) debe ser mayor que el kilometraje actual (%d km)."
+                    "El nuevo kilometraje (%f km) debe ser mayor que el actual (%f km)."
                             .formatted(newMileage.value(), currentKm.value())
             );
         }
@@ -201,6 +210,22 @@ public class Vehicle {
         this.documents.add(document);
     }
 
+    public void markAsSold() {
+
+        if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
+            throw new InvalidVehicleStateException("El vehículo ya está vendido.");
+        }
+
+        if (this.operationalStatus == OperationalStatus.DESECHADO) {
+            throw new InvalidVehicleStateException("Un vehículo desechado no puede venderse.");
+        }
+
+        this.administrativeStatus = AdministrativeStatus.VENDIDO;
+
+    }
+
+
+
     // ¿Tiene un documento válido de cierto tipo?
     public boolean hasValidDocument(DocumentType type, LocalDate today) {
         return this.documents.stream()
@@ -226,6 +251,33 @@ public class Vehicle {
         );
         return required.stream()
                 .allMatch(type -> hasValidDocument(type, today));
+    }
+
+    public void updateColor(String color) {
+        this.color = color;
+    }
+
+    public void updateDisplacement(Integer displacementCc) {
+        if (displacementCc <= 0) {
+            throw new InvalidDomainDataException("La cilindrada debe ser positiva");
+        }
+        this.displacementCc = displacementCc;
+    }
+
+    public void updateService(ServiceType service) {
+        this.service = service;
+    }
+
+    public void updateBodyType(BodyType bodyType) {
+        this.bodyType = bodyType;
+    }
+
+    public void updateFuelType(FuelType fuelType) {
+        this.fuelType = fuelType;
+    }
+
+    public void updateEngineNumber(EngineNumber engineNumber) {
+        this.engineNumber = engineNumber;
     }
 
 

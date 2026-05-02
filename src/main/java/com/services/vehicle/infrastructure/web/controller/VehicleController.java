@@ -1,6 +1,7 @@
 package com.services.vehicle.infrastructure.web.controller;
 
 import com.services.vehicle.application.dto.CreateVehicleCommand;
+import com.services.vehicle.application.dto.UpdateVehicleCommand;
 import com.services.vehicle.application.dto.VehicleResponse;
 import com.services.vehicle.application.port.in.*;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
@@ -8,7 +9,8 @@ import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.web.dto.CreateVehicleControllerResponseDTO;
-import com.services.vehicle.infrastructure.web.dto.VehicleControllerRequestDTO;
+import com.services.vehicle.infrastructure.web.dto.CreateVehicleControllerRequestDTO;
+import com.services.vehicle.infrastructure.web.dto.UpdateVehicleControllerRequestDTO;
 import com.services.vehicle.infrastructure.web.dto.VehicleControllerResponseDTO;
 import com.services.vehicle.infrastructure.web.mapper.VehicleControllerMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +32,14 @@ public class VehicleController {
     private final GetVehiclesByPlateUseCase getVehicleByPlateUseCase;
     private final GetVehiclesByVinUseCase  getVehiclesByVinUseCase;
     private final GetAllVehiclesUseCase getAllVehiclesUseCase;
-    private final GetAllVehiclesByAdministrativeStatus getVehiclesByAdministrativeStatus;
-    private final GetAllVehiclesByOperationalStatus getVehiclesByOperationalStatus;
+    private final GetAllVehiclesByAdministrativeStatusUseCase getVehiclesByAdministrativeStatus;
+    private final GetAllVehiclesByOperationalStatusUseCase getVehiclesByOperationalStatus;
+    private final UpdateVehicleByIdUseCase updateVehicleByIdUseCase;
+    private final DeleteVehicleByIdUseCase deleteVehicleByIdUseCase;
 
     @PostMapping
     public ResponseEntity<CreateVehicleControllerResponseDTO> createVehicle(
-            @RequestBody VehicleControllerRequestDTO request) {
+            @RequestBody CreateVehicleControllerRequestDTO request) {
 
         CreateVehicleCommand command = vehicleControllerMapper.toCommand(request);
 
@@ -117,6 +121,24 @@ public class VehicleController {
                 .toList();
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Void> updateVehicle(
+            @PathVariable UUID id,
+            @RequestBody UpdateVehicleControllerRequestDTO request) {
+
+        UpdateVehicleCommand command = vehicleControllerMapper.toUpdate(request);
+
+        updateVehicleByIdUseCase.update(command, id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteVehicleById(@PathVariable UUID id) {
+        deleteVehicleByIdUseCase.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 

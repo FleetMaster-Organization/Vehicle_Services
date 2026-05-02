@@ -1,10 +1,10 @@
-package com.services.vehicle.application.dto;
+package com.services.vehicle.infrastructure.web.dto;
 
 import com.services.vehicle.domain.enums.BodyType;
 import com.services.vehicle.domain.enums.FuelType;
 import com.services.vehicle.domain.enums.ServiceType;
 
-public record UpdateVehicleCommand(
+public record UpdateVehicleControllerRequestDTO(
         Integer displacementCc,
         String color,
         ServiceType service,

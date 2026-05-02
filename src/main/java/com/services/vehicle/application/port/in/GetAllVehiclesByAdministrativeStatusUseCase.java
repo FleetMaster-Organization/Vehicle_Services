@@ -5,6 +5,6 @@ import com.services.vehicle.domain.enums.AdministrativeStatus;
 
 import java.util.List;
 
-public interface GetAllVehiclesByAdministrativeStatus {
+public interface GetAllVehiclesByAdministrativeStatusUseCase {
     List<VehicleResponse> execute(AdministrativeStatus administrativeStatus);
 }

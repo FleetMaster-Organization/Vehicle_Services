@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class GetVehicleByVinUseCase implements GetVehiclesByVinUseCase {
+public class GetVehicleByVinService implements GetVehiclesByVinUseCase {
     private final VehicleRepositoryPort vehicleRepositoryPort;
     private final VehicleResponseMapper vehicleResponseMapper;
 

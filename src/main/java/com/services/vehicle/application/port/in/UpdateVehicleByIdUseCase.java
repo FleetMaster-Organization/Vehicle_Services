@@ -4,6 +4,6 @@ import com.services.vehicle.application.dto.UpdateVehicleCommand;
 
 import java.util.UUID;
 
-public interface UpdateVehicleUseCase {
-    UUID update(UpdateVehicleCommand command);
+public interface UpdateVehicleByIdUseCase {
+    void update(UpdateVehicleCommand command, UUID id);
 }

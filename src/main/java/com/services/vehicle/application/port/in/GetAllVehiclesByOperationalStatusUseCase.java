@@ -5,6 +5,6 @@ import com.services.vehicle.domain.enums.OperationalStatus;
 
 import java.util.List;
 
-public interface GetAllVehiclesByOperationalStatus {
+public interface GetAllVehiclesByOperationalStatusUseCase {
     List<VehicleResponse> execute(OperationalStatus operationalStatus);
 }

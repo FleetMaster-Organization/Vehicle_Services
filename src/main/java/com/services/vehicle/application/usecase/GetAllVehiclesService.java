@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetAllVehicles implements GetAllVehiclesUseCase {
+public class GetAllVehiclesService implements GetAllVehiclesUseCase {
 
     private final VehicleRepositoryPort vehicleRepositoryPort;
     private final VehicleResponseMapper vehicleResponseMapper;
