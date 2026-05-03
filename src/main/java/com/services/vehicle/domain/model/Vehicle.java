@@ -13,6 +13,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -180,9 +181,19 @@ public class Vehicle {
 
 
     public void activate() {
+
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException("Un vehículo dado de baja no puede reactivarse.");
+            throw new InvalidVehicleStateException(
+                    "Un vehículo dado de baja no puede reactivarse."
+            );
         }
+
+        if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
+            throw new InvalidVehicleStateException(
+                    "Un vehículo vendido no puede reactivarse."
+            );
+        }
+
         this.operationalStatus = OperationalStatus.ACTIVO;
         this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
     }
@@ -199,22 +210,6 @@ public class Vehicle {
 
 
 
-    public void addDocument(VehicleDocument document) {
-        boolean alreadyActive = this.documents.stream()
-                .anyMatch(d ->
-                        d.getDocumentType() == document.getDocumentType()
-                                && d.isValid(LocalDate.now())
-                );
-
-        if (alreadyActive) {
-            throw new InvalidVehicleStateException(
-                    "El vehículo ya tiene un documento activo del tipo:"
-                            + document.getDocumentType()
-            );
-        }
-
-        this.documents.add(document);
-    }
 
     // Documentos próximos a vencer
     public List<VehicleDocument> documentsAboutToExpire(int days, LocalDate today) {
@@ -224,44 +219,63 @@ public class Vehicle {
     }
 
     public void markAsSold() {
-
-        if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
-            throw new InvalidVehicleStateException("El vehículo ya está vendido.");
+        if (this.administrativeStatus != AdministrativeStatus.DISPONIBLE) {
+            throw new InvalidVehicleStateException("Solo DISPONIBLES pueden venderse");
         }
 
-        if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException("Un vehículo desechado no puede venderse.");
-        }
-
-        if (this.administrativeStatus == AdministrativeStatus.SUSPENDIDO) {
-            throw new InvalidVehicleStateException("El vehiculo se encuentra actualmente suspendido," +
-                    " lo que imposibilita su venta");
+        if (this.operationalStatus != OperationalStatus.ACTIVO) {
+            throw new InvalidVehicleStateException("Solo ACTIVO puede venderse");
         }
 
         this.administrativeStatus = AdministrativeStatus.VENDIDO;
-
     }
 
 
 
     public boolean hasValidDocument(DocumentType type, LocalDate today) {
         return this.documents.stream()
-                .anyMatch(d ->
-                        d.getDocumentType() == type
-                                && d.isValid(today)
-                );
+                .filter(d -> d.getDocumentType() == type)
+                .anyMatch(d -> {
+                    if (!type.isExpirable()) {
+                        return true;
+                    }
+                    return d.isValid(today);
+                });
     }
 
 
+    public void addDocument(VehicleDocument document) {
 
-    // ¿Está el vehículo en regla? (todos los docs obligatorios vigentes)
+        DocumentType type = document.getDocumentType();
+
+        boolean exists = this.documents.stream()
+                .anyMatch(d -> d.getDocumentType() == type);
+
+        if (!type.isExpirable() && exists) {
+            throw new InvalidVehicleStateException(
+                    "Solo puede existir un documento de tipo: " + type
+            );
+        }
+
+        boolean alreadyActive = this.documents.stream()
+                .anyMatch(d ->
+                        d.getDocumentType() == type &&
+                                (!type.isExpirable() || d.isValid(LocalDate.now()))
+                );
+
+        if (type.isExpirable() && alreadyActive) {
+            throw new InvalidVehicleStateException(
+                    "Ya existe un documento ACTIVO de tipo: " + type
+            );
+        }
+
+        this.documents.add(document);
+    }
+
     public boolean isLegallyCompliant(LocalDate today) {
-        List<DocumentType> required = List.of(
-                DocumentType.SOAT,
-                DocumentType.TECNO,
-                DocumentType.TARJETA_PROPIEDAD
-        );
-        return required.stream()
+
+        return Arrays.stream(DocumentType.values())
+                .filter(DocumentType::isRequired)
                 .allMatch(type -> hasValidDocument(type, today));
     }
 

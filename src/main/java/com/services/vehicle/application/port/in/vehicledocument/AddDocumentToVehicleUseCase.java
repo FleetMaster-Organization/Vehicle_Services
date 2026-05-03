@@ -1,4 +1,4 @@
-package com.services.vehicle.application.port.in.vehicle;
+package com.services.vehicle.application.port.in.vehicledocument;
 
 import com.services.vehicle.application.dto.CreateVehicleDocumentCommand;
 
