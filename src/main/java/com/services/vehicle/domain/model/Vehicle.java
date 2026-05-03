@@ -180,9 +180,19 @@ public class Vehicle {
 
 
     public void activate() {
+
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException("Un vehículo dado de baja no puede reactivarse.");
+            throw new InvalidVehicleStateException(
+                    "Un vehículo dado de baja no puede reactivarse."
+            );
         }
+
+        if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
+            throw new InvalidVehicleStateException(
+                    "Un vehículo vendido no puede reactivarse."
+            );
+        }
+
         this.operationalStatus = OperationalStatus.ACTIVO;
         this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
     }
@@ -224,22 +234,15 @@ public class Vehicle {
     }
 
     public void markAsSold() {
-
-        if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
-            throw new InvalidVehicleStateException("El vehículo ya está vendido.");
+        if (this.administrativeStatus != AdministrativeStatus.DISPONIBLE) {
+            throw new InvalidVehicleStateException("Solo DISPONIBLES pueden venderse");
         }
 
-        if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException("Un vehículo desechado no puede venderse.");
-        }
-
-        if (this.administrativeStatus == AdministrativeStatus.SUSPENDIDO) {
-            throw new InvalidVehicleStateException("El vehiculo se encuentra actualmente suspendido," +
-                    " lo que imposibilita su venta");
+        if (this.operationalStatus != OperationalStatus.ACTIVO) {
+            throw new InvalidVehicleStateException("Solo ACTIVO puede venderse");
         }
 
         this.administrativeStatus = AdministrativeStatus.VENDIDO;
-
     }
 
 
