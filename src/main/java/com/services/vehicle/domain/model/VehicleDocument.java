@@ -37,6 +37,8 @@ public class VehicleDocument {
             new ArrayList<>();
 
 
+
+
     public static VehicleDocument create(
             UUID vehicleId,
             DocumentType documentType,
@@ -48,8 +50,10 @@ public class VehicleDocument {
             throw new InvalidDomainDataException("Se requiere el emisor (issuedBy).");
         }
 
+        validateDocumentNumber(documentType, documentNumber.value());
+
         return new VehicleDocument(
-                UUID.randomUUID(),
+                null,
                 vehicleId,
                 documentType,
                 documentNumber,
@@ -60,6 +64,46 @@ public class VehicleDocument {
                         : LegalStatus.VALIDO,
                 new ArrayList<>()
         );
+    }
+
+    private static void validateDocumentNumber(DocumentType type, String value) {
+
+        switch (type) {
+            case SOAT -> {
+                if (!value.matches("^[A-Z0-9]{8,20}$")) {
+                    throw new InvalidDomainDataException("SOAT inválido");
+                }
+            }
+            case TECNO -> {
+                if (!value.matches("^[0-9]{10,15}$")) {
+                    throw new InvalidDomainDataException("TECNO inválido");
+                }
+            }
+        }
+    }
+
+    public static VehicleDocument rehydrate(
+            UUID id,
+            UUID vehicleId,
+            DocumentType documentType,
+            DocumentNumber documentNumber,
+            String issuedBy,
+            ValidityPeriod validityPeriod,
+            LegalStatus legalStatus,
+            List<VehicleDocumentAudit> audits
+    ) {
+        VehicleDocument doc = new VehicleDocument();
+
+        doc.id = id;
+        doc.vehicleId = vehicleId;
+        doc.documentType = documentType;
+        doc.documentNumber = documentNumber;
+        doc.issuedBy = issuedBy;
+        doc.validityPeriod = validityPeriod;
+        doc.legalStatus = legalStatus;
+        doc.audits = audits;
+
+        return doc;
     }
 
     public void renew(

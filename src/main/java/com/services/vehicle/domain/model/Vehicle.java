@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+
+
 /**
  * Modelo de dominio puro que representa un vehículo de la flota.
  * No contiene ninguna anotación de persistencia (JPA/Hibernate).
@@ -125,21 +127,9 @@ public class Vehicle {
         return v;
     }
 
-
-
     // -------------------------------------------------------------------------
     // Lógica de negocio
     // -------------------------------------------------------------------------
-
-    public void updateCurrentKm(Mileage newMileage) {
-        if (!newMileage.greaterThan(currentKm)) {
-            throw new InvalidDomainDataException(
-                    "El nuevo kilometraje (%f km) debe ser mayor que el actual (%f km)."
-                            .formatted(newMileage.value(), currentKm.value())
-            );
-        }
-        this.currentKm = newMileage;
-    }
 
     public void sendToMaintenance() {
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
@@ -154,22 +144,6 @@ public class Vehicle {
         }
         this.operationalStatus = OperationalStatus.EN_MANTENIMIENTO;
         this.administrativeStatus = AdministrativeStatus.RESERVADO;
-    }
-
-    public void activate() {
-        if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException("Un vehículo dado de baja no puede reactivarse.");
-        }
-        this.operationalStatus = OperationalStatus.ACTIVO;
-        this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
-    }
-
-    public void scrap() {
-        if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
-        }
-        this.operationalStatus = OperationalStatus.DESECHADO;
-        this.administrativeStatus = AdministrativeStatus.SUSPENDIDO;
     }
 
     public void assign(LocalDate today) {
@@ -193,6 +167,38 @@ public class Vehicle {
         this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
     }
 
+    public void updateCurrentKm(Mileage newMileage) {
+        if (!newMileage.greaterThan(currentKm)) {
+            throw new InvalidDomainDataException(
+                    "El nuevo kilometraje (%f km) debe ser mayor que el actual (%f km)."
+                            .formatted(newMileage.value(), currentKm.value())
+            );
+        }
+        this.currentKm = newMileage;
+    }
+
+
+
+    public void activate() {
+        if (this.operationalStatus == OperationalStatus.DESECHADO) {
+            throw new InvalidVehicleStateException("Un vehículo dado de baja no puede reactivarse.");
+        }
+        this.operationalStatus = OperationalStatus.ACTIVO;
+        this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
+    }
+
+    public void scrap() {
+        if (this.operationalStatus == OperationalStatus.DESECHADO) {
+            throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
+        }
+        this.operationalStatus = OperationalStatus.DESECHADO;
+        this.administrativeStatus = AdministrativeStatus.SUSPENDIDO;
+    }
+
+
+
+
+
     public void addDocument(VehicleDocument document) {
         boolean alreadyActive = this.documents.stream()
                 .anyMatch(d ->
@@ -208,6 +214,13 @@ public class Vehicle {
         }
 
         this.documents.add(document);
+    }
+
+    // Documentos próximos a vencer
+    public List<VehicleDocument> documentsAboutToExpire(int days, LocalDate today) {
+        return this.documents.stream()
+                .filter(d -> d.isAboutToExpire(days, today))
+                .toList();
     }
 
     public void markAsSold() {
@@ -231,7 +244,6 @@ public class Vehicle {
 
 
 
-    // ¿Tiene un documento válido de cierto tipo?
     public boolean hasValidDocument(DocumentType type, LocalDate today) {
         return this.documents.stream()
                 .anyMatch(d ->
@@ -240,12 +252,7 @@ public class Vehicle {
                 );
     }
 
-    // Documentos próximos a vencer
-    public List<VehicleDocument> documentsAboutToExpire(int days, LocalDate today) {
-        return this.documents.stream()
-                .filter(d -> d.isAboutToExpire(days, today))
-                .toList();
-    }
+
 
     // ¿Está el vehículo en regla? (todos los docs obligatorios vigentes)
     public boolean isLegallyCompliant(LocalDate today) {

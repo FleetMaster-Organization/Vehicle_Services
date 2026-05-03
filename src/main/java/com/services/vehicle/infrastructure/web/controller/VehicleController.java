@@ -3,16 +3,14 @@ package com.services.vehicle.infrastructure.web.controller;
 import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.dto.UpdateVehicleCommand;
 import com.services.vehicle.application.dto.VehicleResponse;
-import com.services.vehicle.application.port.in.*;
+import com.services.vehicle.application.port.in.vehicle.*;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
-import com.services.vehicle.infrastructure.web.dto.CreateVehicleControllerResponseDTO;
-import com.services.vehicle.infrastructure.web.dto.CreateVehicleControllerRequestDTO;
-import com.services.vehicle.infrastructure.web.dto.UpdateVehicleControllerRequestDTO;
-import com.services.vehicle.infrastructure.web.dto.VehicleControllerResponseDTO;
+import com.services.vehicle.infrastructure.web.dto.*;
 import com.services.vehicle.infrastructure.web.mapper.VehicleControllerMapper;
+import com.services.vehicle.infrastructure.web.mapper.VehicleDocumentControllerMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +25,7 @@ import java.util.UUID;
 public class VehicleController {
 
     private final VehicleControllerMapper vehicleControllerMapper;
+    private final VehicleDocumentControllerMapper vehicleDocumentMapper;
     private final CreateVehicleUseCase createVehicleUseCase;
     private final GetVehicleByIdUseCase getVehicleByIdUseCase;
     private final GetVehiclesByPlateUseCase getVehicleByPlateUseCase;
@@ -37,6 +36,8 @@ public class VehicleController {
     private final UpdateVehicleByIdUseCase updateVehicleByIdUseCase;
     private final DeleteVehicleByIdUseCase deleteVehicleByIdUseCase;
     private final MarkVehicleAsSoldUseCase markVehicleAsSoldUseCase;
+    private final ActivateVehicleUseCase activateVehicleUseCase;
+    private final AddDocumentToVehicleUseCase addDocumentToVehicleUseCase;
 
     @PostMapping
     public ResponseEntity<CreateVehicleControllerResponseDTO> createVehicle(
@@ -150,5 +151,25 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Void> activateVehicle(@PathVariable UUID id) {
 
+        activateVehicleUseCase.activate(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{vehicleId}/documents")
+    public ResponseEntity<Void> addDocument(
+            @PathVariable UUID vehicleId,
+            @RequestBody CreateVehicleDocumentRequestDTO request
+    ) {
+
+        addDocumentToVehicleUseCase.addDocument(
+                vehicleId,
+                vehicleDocumentMapper.toCommand(request)
+        );
+
+        return ResponseEntity.status(201).build();
+    }
 }

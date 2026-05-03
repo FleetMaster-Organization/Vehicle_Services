@@ -1,7 +1,7 @@
-package com.services.vehicle.application.usecase;
+package com.services.vehicle.application.usecase.vehicle;
 
 import com.services.vehicle.application.dto.UpdateVehicleCommand;
-import com.services.vehicle.application.port.in.UpdateVehicleByIdUseCase;
+import com.services.vehicle.application.port.in.vehicle.UpdateVehicleByIdUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.valueobject.EngineNumber;

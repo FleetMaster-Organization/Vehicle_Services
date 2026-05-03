@@ -8,6 +8,7 @@ import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
+import com.services.vehicle.infrastructure.persistence.mapper.VehicleDocumentMapper;
 import com.services.vehicle.infrastructure.persistence.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,11 +22,39 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
 
     private final JpaVehicleRepository jpaVehicleRepository;
     private final VehicleMapper vehicleMapper;
+    private final VehicleDocumentMapper vehicleDocumentMapper;
 
     @Override
     public Vehicle save(Vehicle vehicle) {
 
-        VehicleEntity entity = vehicleMapper.toEntity(vehicle);
+        VehicleEntity entity;
+
+        if (vehicle.getId() == null) {
+            entity = vehicleMapper.toEntity(vehicle);
+
+        } else {
+            entity = jpaVehicleRepository.findById(vehicle.getId())
+                    .orElseThrow(() -> new VehicleNotFoundException(vehicle.getId()));
+
+            entity.setColor(vehicle.getColor());
+            entity.setDisplacementCc(vehicle.getDisplacementCc());
+            entity.setCurrentKm(vehicle.getCurrentKm().value());
+            entity.setEngineNumber(vehicle.getEngineNumber().value());
+            entity.setService(vehicle.getService());
+            entity.setBodyType(vehicle.getBodyType());
+            entity.setFuelType(vehicle.getFuelType());
+
+            entity.getDocuments().clear();
+
+            if (vehicle.getDocuments() != null) {
+                entity.getDocuments().addAll(
+                        vehicleDocumentMapper.toEntityList(
+                                vehicle.getDocuments(),
+                                entity
+                        )
+                );
+            }
+        }
 
         VehicleEntity saved = jpaVehicleRepository.save(entity);
 
