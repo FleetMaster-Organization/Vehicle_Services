@@ -2,10 +2,7 @@ package com.services.vehicle.infrastructure.persistence.mapper;
 
 
 import com.services.vehicle.domain.model.Vehicle;
-import com.services.vehicle.domain.valueobject.EngineNumber;
-import com.services.vehicle.domain.valueobject.LicensePlate;
-import com.services.vehicle.domain.valueobject.Mileage;
-import com.services.vehicle.domain.valueobject.Vin;
+import com.services.vehicle.domain.valueobject.*;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
 
 
@@ -14,6 +11,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +51,7 @@ public abstract class VehicleMapper {
                 entity.getOperationalStatus(),
                 entity.getAdministrativeStatus(),
                 entity.getCreatedAt(),
+                entity.getUpdatedAt(),
                 entity.getDocuments() != null
                         ? vehicleDocumentMapper.toDomainList(entity.getDocuments())
                         : new ArrayList<>(),
@@ -64,7 +63,6 @@ public abstract class VehicleMapper {
 
     public abstract List<Vehicle> toDomainList(List<VehicleEntity> entities);
 
-    @Mapping(target = "documents", ignore = true)
     @Mapping(target = "audits", ignore = true)
     public abstract VehicleEntity toEntity(Vehicle domain);
 
@@ -101,4 +99,18 @@ public abstract class VehicleMapper {
     protected Double map(Mileage mileage) {
         return mileage == null ? null : mileage.value();
     }
+
+    protected String map(DocumentNumber value) {
+        return value == null ? null : value.value();
+    }
+
+    protected LocalDate mapIssueDate(ValidityPeriod vp) {
+        return vp == null ? null : vp.issueDate();
+    }
+
+    protected LocalDate mapExpirationDate(ValidityPeriod vp) {
+        return vp == null ? null : vp.expirationDate();
+    }
+
+
 }

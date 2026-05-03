@@ -1,9 +1,7 @@
 package com.services.vehicle.domain.valueobject;
 
-import jakarta.persistence.Embeddable;
 import com.services.vehicle.domain.exception.InvalidDomainDataException;
 
-@Embeddable
 
 public record EngineNumber(
         String value

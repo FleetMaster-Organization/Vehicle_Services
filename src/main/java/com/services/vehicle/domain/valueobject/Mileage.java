@@ -1,11 +1,9 @@
 package com.services.vehicle.domain.valueobject;
 
-import jakarta.persistence.Embeddable;
 
 import java.util.Objects;
 import com.services.vehicle.domain.exception.InvalidDomainDataException;
 
-@Embeddable
 public record Mileage(Double value) {
 
     public Mileage {
@@ -18,9 +16,16 @@ public record Mileage(Double value) {
                     "El kilometraje no puede ser negativo."
             );
         }
+
+
     }
 
-    public boolean greaterThan(Mileage other){
-        return value > other.value;
+    public boolean greaterThan(Mileage other) {
+        return this.value > other.value;
     }
+
+    public boolean lessThan(Mileage other) {
+        return this.value < other.value;
+    }
+
 }

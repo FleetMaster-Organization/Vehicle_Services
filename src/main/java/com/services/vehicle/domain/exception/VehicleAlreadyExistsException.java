@@ -9,10 +9,10 @@ import com.services.vehicle.domain.valueobject.Vin;
 public class VehicleAlreadyExistsException extends RuntimeException {
 
     public VehicleAlreadyExistsException(LicensePlate plate) {
-        super("Ya existe un vehículo con placa: " + plate);
+        super("Ya existe un vehículo con placa: " + plate.value());
     }
 
     public VehicleAlreadyExistsException(Vin vin) {
-        super("Ya existe un vehículo con placa: " + vin);
+        super("Ya existe un vehículo con ese codigo vin: " + vin.value());
     }
 }

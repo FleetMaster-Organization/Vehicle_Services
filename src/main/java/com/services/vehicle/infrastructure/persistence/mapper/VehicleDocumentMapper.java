@@ -12,6 +12,7 @@ import org.mapstruct.ReportingPolicy;
 import org.mapstruct.Context;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(
@@ -25,13 +26,21 @@ public abstract class VehicleDocumentMapper {
     // Entity → Domain
     // -------------------------------------------------------------------------
 
-    @Mapping(target = "vehicleId", source = "vehicle.id")
-    @Mapping(target = "documentNumber",
-            expression = "java(new DocumentNumber(entity.getDocumentType(), entity.getDocumentNumber()))")
-    @Mapping(target = "validityPeriod",
-            expression = "java(new ValidityPeriod(entity.getIssueDate(), entity.getExpirationDate()))")
-    public abstract VehicleDocument toDomain(VehicleDocumentEntity entity);
+    public VehicleDocument toDomain(VehicleDocumentEntity entity) {
 
+        if (entity == null) return null;
+
+        return VehicleDocument.rehydrate(
+                entity.getId(),
+                entity.getVehicle().getId(),
+                entity.getDocumentType(),
+                new DocumentNumber(entity.getDocumentNumber()),
+                entity.getIssuedBy(),
+                new ValidityPeriod(entity.getIssueDate(), entity.getExpirationDate()),
+                entity.getLegalStatus(),
+                new ArrayList<>()
+        );
+    }
     public abstract List<VehicleDocument> toDomainList(List<VehicleDocumentEntity> entities);
 
     // -------------------------------------------------------------------------
@@ -41,7 +50,7 @@ public abstract class VehicleDocumentMapper {
     @Mapping(target = "vehicle", expression = "java(vehicleEntity)")
     @Mapping(target = "audits", ignore = true)
     @Mapping(target = "documentNumber", source = "documentNumber.value")
-    @Mapping(target = "documentType", source = "documentNumber.type")
+    @Mapping(target = "documentType", source = "documentType")
     @Mapping(target = "issueDate", source = "validityPeriod.issueDate")
     @Mapping(target = "expirationDate", source = "validityPeriod.expirationDate")
     public abstract VehicleDocumentEntity toEntity(

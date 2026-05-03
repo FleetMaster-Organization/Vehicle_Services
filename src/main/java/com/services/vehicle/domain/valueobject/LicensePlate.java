@@ -1,11 +1,8 @@
 package com.services.vehicle.domain.valueobject;
 
-import jakarta.persistence.Embeddable;
 
 import java.util.Objects;
 import com.services.vehicle.domain.exception.InvalidDomainDataException;
-
-@Embeddable
 
 public record LicensePlate(String value) {
 

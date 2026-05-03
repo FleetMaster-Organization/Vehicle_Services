@@ -20,7 +20,7 @@ public class VehicleNotFoundException extends RuntimeException {
     }
 
     public VehicleNotFoundException(Vin vin) {
-        super("Vehículo no encontrado con ID: " + vin);
+        super("Vehículo no encontrado con Vin: " + vin);
         this.vehicleId = null;
         this.identifier = vin.value();
     }

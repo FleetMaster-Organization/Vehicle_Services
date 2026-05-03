@@ -1,10 +1,10 @@
 package com.services.vehicle.domain.enums;
 
 public enum FuelType {
-    GASOLINE,
+    GASOLINA,
     DIESEL,
-    ELECTRIC,
-    HYBRID,
+    ELECTRICO,
+    HYBRIDO,
     GAS,
-    GASOLINE_GAS
+    GASOLINA_GAS
 }

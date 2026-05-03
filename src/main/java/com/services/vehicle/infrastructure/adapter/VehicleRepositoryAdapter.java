@@ -1,22 +1,19 @@
 package com.services.vehicle.infrastructure.adapter;
 
-import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
-import com.services.vehicle.domain.exception.VehicleAlreadyExistsException;
 import com.services.vehicle.domain.exception.VehicleNotFoundException;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
+import com.services.vehicle.infrastructure.persistence.mapper.VehicleDocumentMapper;
 import com.services.vehicle.infrastructure.persistence.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -25,25 +22,41 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
 
     private final JpaVehicleRepository jpaVehicleRepository;
     private final VehicleMapper vehicleMapper;
+    private final VehicleDocumentMapper vehicleDocumentMapper;
 
     @Override
     public Vehicle save(Vehicle vehicle) {
 
-        if (jpaVehicleRepository.existsByPlate(vehicle.getPlate().toString())) {
-            throw new VehicleAlreadyExistsException(vehicle.getPlate());
+        VehicleEntity entity;
+
+        if (vehicle.getId() == null) {
+            entity = vehicleMapper.toEntity(vehicle);
+
+        } else {
+            entity = jpaVehicleRepository.findById(vehicle.getId())
+                    .orElseThrow(() -> new VehicleNotFoundException(vehicle.getId()));
+
+            entity.setColor(vehicle.getColor());
+            entity.setDisplacementCc(vehicle.getDisplacementCc());
+            entity.setCurrentKm(vehicle.getCurrentKm().value());
+            entity.setEngineNumber(vehicle.getEngineNumber().value());
+            entity.setService(vehicle.getService());
+            entity.setBodyType(vehicle.getBodyType());
+            entity.setFuelType(vehicle.getFuelType());
+
+            entity.getDocuments().clear();
+
+            if (vehicle.getDocuments() != null) {
+                entity.getDocuments().addAll(
+                        vehicleDocumentMapper.toEntityList(
+                                vehicle.getDocuments(),
+                                entity
+                        )
+                );
+            }
         }
-
-        if (jpaVehicleRepository.existsByVin(vehicle.getVin().toString())) {
-            throw new VehicleAlreadyExistsException(vehicle.getVin());
-        }
-
-
-        VehicleEntity entity = vehicleMapper.toEntity(vehicle);
 
         VehicleEntity saved = jpaVehicleRepository.save(entity);
-
-        saved.setAdministrativeStatus(AdministrativeStatus.AVAILABLE);
-        saved.setOperationalStatus(OperationalStatus.ACTIVE);
 
         return vehicleMapper.toDomain(saved);
     }
@@ -81,22 +94,25 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
     }
 
     @Override
-    public List<VehicleEntity> findByOperationalStatus(OperationalStatus status) {
-        return List.of();
+    public List<Vehicle> findByOperationalStatus(OperationalStatus status) {
+        List<VehicleEntity> vehicles = jpaVehicleRepository.findByOperationalStatus(status);
+        return vehicleMapper.toDomainList(vehicles);
     }
 
     @Override
-    public List<VehicleEntity> findByAdministrativeStatus(AdministrativeStatus status) {
-        return List.of();
+    public List<Vehicle> findByAdministrativeStatus(AdministrativeStatus status) {
+        List<VehicleEntity> vehicles = jpaVehicleRepository.findByAdministrativeStatus(status);
+        return vehicleMapper.toDomainList(vehicles);
     }
+
 
     @Override
     public boolean existsByPlate(String plate) {
-        return false;
+        return jpaVehicleRepository.existsByPlate(plate);
     }
 
     @Override
     public boolean existsByVin(String vin) {
-        return false;
+        return jpaVehicleRepository.existsByVin(vin);
     }
 }

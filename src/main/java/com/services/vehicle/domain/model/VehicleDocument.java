@@ -37,6 +37,8 @@ public class VehicleDocument {
             new ArrayList<>();
 
 
+
+
     public static VehicleDocument create(
             UUID vehicleId,
             DocumentType documentType,
@@ -48,18 +50,60 @@ public class VehicleDocument {
             throw new InvalidDomainDataException("Se requiere el emisor (issuedBy).");
         }
 
+        validateDocumentNumber(documentType, documentNumber.value());
+
         return new VehicleDocument(
-                UUID.randomUUID(),
+                null,
                 vehicleId,
                 documentType,
                 documentNumber,
                 issuedBy,
                 validityPeriod,
                 validityPeriod.isExpired(LocalDate.now())
-                        ? LegalStatus.EXPIRED
-                        : LegalStatus.VALID,
+                        ? LegalStatus.EXPIRADO
+                        : LegalStatus.VALIDO,
                 new ArrayList<>()
         );
+    }
+
+    private static void validateDocumentNumber(DocumentType type, String value) {
+
+        switch (type) {
+            case SOAT -> {
+                if (!value.matches("^[A-Z0-9]{8,20}$")) {
+                    throw new InvalidDomainDataException("SOAT inválido");
+                }
+            }
+            case TECNO -> {
+                if (!value.matches("^[0-9]{10,15}$")) {
+                    throw new InvalidDomainDataException("TECNO inválido");
+                }
+            }
+        }
+    }
+
+    public static VehicleDocument rehydrate(
+            UUID id,
+            UUID vehicleId,
+            DocumentType documentType,
+            DocumentNumber documentNumber,
+            String issuedBy,
+            ValidityPeriod validityPeriod,
+            LegalStatus legalStatus,
+            List<VehicleDocumentAudit> audits
+    ) {
+        VehicleDocument doc = new VehicleDocument();
+
+        doc.id = id;
+        doc.vehicleId = vehicleId;
+        doc.documentType = documentType;
+        doc.documentNumber = documentNumber;
+        doc.issuedBy = issuedBy;
+        doc.validityPeriod = validityPeriod;
+        doc.legalStatus = legalStatus;
+        doc.audits = audits;
+
+        return doc;
     }
 
     public void renew(
@@ -69,7 +113,7 @@ public class VehicleDocument {
             LocalDate newExpirationDate
     ) {
 
-        if (this.legalStatus == LegalStatus.SUSPENDED) {
+        if (this.legalStatus == LegalStatus.SUSPENDIDO) {
             throw new InvalidVehicleStateException(
                     "No se puede renovar un documento suspendido. Primero hay que levantar la suspensión."
             );
@@ -84,25 +128,25 @@ public class VehicleDocument {
                         newExpirationDate
                 );
 
-        this.legalStatus = LegalStatus.VALID;
+        this.legalStatus = LegalStatus.VALIDO;
     }
 
     public boolean isValid(LocalDate today) {
-        return legalStatus == LegalStatus.VALID
+        return legalStatus == LegalStatus.VALIDO
                 && validityPeriod.isValid(today);
     }
 
     public void checkExpiration(LocalDate today) {
-        if (this.legalStatus == LegalStatus.SUSPENDED) {
+        if (this.legalStatus == LegalStatus.SUSPENDIDO) {
             return; // la suspensión tiene precedencia
         }
 
         if (validityPeriod.isExpired(today)) {
-            this.legalStatus = LegalStatus.EXPIRED;
+            this.legalStatus = LegalStatus.EXPIRADO;
         } else if (validityPeriod.expiresWithin(30, today)) {
-            this.legalStatus = LegalStatus.PENDING_RENEWAL;
+            this.legalStatus = LegalStatus.RENOVACION_PENDIENTE;
         } else {
-            this.legalStatus = LegalStatus.VALID;
+            this.legalStatus = LegalStatus.VALIDO;
         }
     }
 
@@ -114,11 +158,11 @@ public class VehicleDocument {
     }
 
     public void suspend() {
-        this.legalStatus = LegalStatus.SUSPENDED;
+        this.legalStatus = LegalStatus.SUSPENDIDO;
     }
 
     public void markPendingRenewal() {
-        this.legalStatus = LegalStatus.PENDING_RENEWAL;
+        this.legalStatus = LegalStatus.RENOVACION_PENDIENTE;
     }
 
 
