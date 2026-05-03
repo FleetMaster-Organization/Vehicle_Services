@@ -139,7 +139,7 @@ public class Vehicle {
         }
         if (this.operationalStatus == OperationalStatus.EN_MANTENIMIENTO) {
             throw new InvalidVehicleStateException(
-                    "El vehículo ya está en mantenimiento.."
+                    "El vehículo ya está en mantenimiento."
             );
         }
         this.operationalStatus = OperationalStatus.EN_MANTENIMIENTO;
@@ -158,6 +158,7 @@ public class Vehicle {
             );
         }
         this.administrativeStatus = AdministrativeStatus.ASIGNADO;
+        this.operationalStatus = OperationalStatus.ACTIVO;
     }
 
     public void release() {
@@ -210,6 +211,7 @@ public class Vehicle {
                 cmd.expirationDate()
         );
     }
+
     public void scrap() {
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
@@ -220,10 +222,6 @@ public class Vehicle {
 
 
 
-
-
-
-    // Documentos próximos a vencer
     public List<VehicleDocument> documentsAboutToExpire(int days, LocalDate today) {
         return this.documents.stream()
                 .filter(d -> d.isAboutToExpire(days, today))
@@ -240,6 +238,7 @@ public class Vehicle {
         }
 
         this.administrativeStatus = AdministrativeStatus.VENDIDO;
+        this.operationalStatus = OperationalStatus.INACTIVO;
     }
 
 

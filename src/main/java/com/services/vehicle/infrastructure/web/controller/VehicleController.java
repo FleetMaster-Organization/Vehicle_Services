@@ -40,6 +40,10 @@ public class VehicleController {
     private final GetDocumentByIdUseCase getDocumentByIdUseCase;
     private final GetAllDocumentsByVehicleUseCase getAllDocumentsByVehicleUseCase;
     private final RenewDocumentUseCase renewDocumentUseCase;
+    private final SendVehicleToMaintenanceUseCase sendVehicleToMaintenanceUseCase;
+    private final AssignVehicleUseCase assignVehicleUseCase;
+    private final ReleaseVehicleUseCase releaseVehicleUseCase;
+    private final DocumentsAboutToExpireUseCase documentsAboutToExpireUseCase;
 
 
     @PostMapping
@@ -105,6 +109,18 @@ public class VehicleController {
     @GetMapping("/{vehicleId}/documents")
     public ResponseEntity<List<DocumentControllerResponseDTO>> getAllDocumentsByVehicleId(@PathVariable UUID vehicleId) {
         List<DocumentResponse> documents = getAllDocumentsByVehicleUseCase.execute(vehicleId);
+
+        List<DocumentControllerResponseDTO> response = documents.stream()
+                .map(vehicleDocumentMapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/documentsAboutToExpire")
+    public ResponseEntity<List<DocumentControllerResponseDTO>>  documentsAboutToExpire(@PathVariable UUID id) {
+
+        List<DocumentResponse> documents = documentsAboutToExpireUseCase.execute(id);
 
         List<DocumentControllerResponseDTO> response = documents.stream()
                 .map(vehicleDocumentMapper::toResponse)
@@ -195,7 +211,6 @@ public class VehicleController {
 //    @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> deleteVehicleById(@PathVariable UUID id) {
         deleteVehicleByIdUseCase.delete(id);
-        System.out.println("DELETE VEHICLE: " + id);
         return ResponseEntity.noContent().build();
     }
 
@@ -217,6 +232,27 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/send-maintenance")
+    public ResponseEntity<Void> sendMaintenance(@PathVariable UUID id) {
+
+        sendVehicleToMaintenanceUseCase.sendVehicleToMaintenance(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/assign")
+    public ResponseEntity<Void> assignVehicle(@PathVariable UUID id) {
+        assignVehicleUseCase.assign(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/release")
+    public ResponseEntity<Void> releaseVehicle(@PathVariable UUID id) {
+        releaseVehicleUseCase.release(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{vehicleId}/document/{documentId}/renew")
     public ResponseEntity<Void> renewDocument(@PathVariable UUID vehicleId, @PathVariable UUID documentId,
                                               @RequestBody RenewVehicleControllerRequestDTO request) {
@@ -227,6 +263,7 @@ public class VehicleController {
 
         return ResponseEntity.noContent().build();
     }
+
 
 
 

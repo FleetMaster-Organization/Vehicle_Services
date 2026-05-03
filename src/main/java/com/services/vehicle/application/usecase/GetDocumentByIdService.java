@@ -2,7 +2,6 @@ package com.services.vehicle.application.usecase;
 
 import com.services.vehicle.application.dto.DocumentResponse;
 import com.services.vehicle.application.mapper.DocumentResponseMapper;
-import com.services.vehicle.application.port.in.CreateVehicleUseCase;
 import com.services.vehicle.application.port.in.GetDocumentByIdUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.model.Vehicle;
