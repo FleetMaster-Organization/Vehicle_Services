@@ -1,10 +1,10 @@
 package com.services.vehicle.infrastructure.web.controller;
 
 import com.services.vehicle.application.dto.CreateVehicleCommand;
+import com.services.vehicle.application.dto.DocumentResponse;
 import com.services.vehicle.application.dto.UpdateVehicleCommand;
 import com.services.vehicle.application.dto.VehicleResponse;
-import com.services.vehicle.application.port.in.vehicle.*;
-import com.services.vehicle.application.port.in.vehicledocument.AddDocumentToVehicleUseCase;
+import com.services.vehicle.application.port.in.*;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.valueobject.LicensePlate;
@@ -15,6 +15,7 @@ import com.services.vehicle.infrastructure.web.mapper.VehicleDocumentControllerM
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,8 +40,10 @@ public class VehicleController {
     private final MarkVehicleAsSoldUseCase markVehicleAsSoldUseCase;
     private final ActivateVehicleUseCase activateVehicleUseCase;
     private final AddDocumentToVehicleUseCase addDocumentToVehicleUseCase;
+    private final GetDocumentByIdUseCase getDocumentByIdUseCase;
 
     @PostMapping
+//    @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<CreateVehicleControllerResponseDTO> createVehicle(
             @RequestBody CreateVehicleControllerRequestDTO request) {
 
@@ -56,7 +59,28 @@ public class VehicleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/{vehicleId}/documents")
+//    @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
+    public ResponseEntity<CreateVehicleControllerResponseDTO> addDocument(
+            @PathVariable UUID vehicleId,
+            @RequestBody CreateVehicleDocumentRequestDTO request
+    ) {
+
+        UUID documentId = addDocumentToVehicleUseCase.addDocument(
+                vehicleId,
+                vehicleDocumentMapper.toCommand(request)
+        );
+
+        CreateVehicleControllerResponseDTO response = new CreateVehicleControllerResponseDTO(
+                documentId,
+                "Documento creado correctamente"
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @GetMapping("/{id}")
+//    @PreAuthorize("hasAuthority('ROLE_COORDINADOR')('ROLE_ADMINISTRATOR')")
     public ResponseEntity<VehicleControllerResponseDTO> getVehicleById(@PathVariable UUID id) {
 
         VehicleResponse response = getVehicleByIdUseCase.execute(id);
@@ -66,7 +90,20 @@ public class VehicleController {
         );
     }
 
+    @GetMapping("/{vehicleId}/documents/{documentId}")
+    public ResponseEntity<DocumentControllerResponseDTO> getDocumentById(
+            @PathVariable UUID vehicleId,
+            @PathVariable UUID documentId
+    ) {
+
+        DocumentResponse response =
+                getDocumentByIdUseCase.execute(vehicleId, documentId);
+
+        return ResponseEntity.ok(vehicleDocumentMapper.toResponse(response));
+    }
+
     @GetMapping
+//    @PreAuthorize("hasAuthority('ROLE_COORDINADOR')('ROLE_ADMINISTRATOR')")
     public ResponseEntity<List<VehicleControllerResponseDTO>> getAllVehicles() {
 
         List<VehicleResponse> vehicles = getAllVehiclesUseCase.execute();
@@ -79,6 +116,7 @@ public class VehicleController {
     }
 
     @GetMapping("/{plate}/plate")
+//    @PreAuthorize("hasAuthority('ROLE_COORDINADOR')('ROLE_ADMINISTRATOR')")
     public ResponseEntity<VehicleControllerResponseDTO> getVehicleByPlate(@PathVariable String plate){
 
         LicensePlate licensePlate = new LicensePlate(plate);
@@ -88,7 +126,8 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
     }
 
-    @GetMapping("{vin}/vin/")
+    @GetMapping("{vin}/vin")
+//    @PreAuthorize("hasAuthority('ROLE_COORDINADOR')('ROLE_ADMINISTRATOR')")
     public ResponseEntity<VehicleControllerResponseDTO> getVehiclesByVin(@PathVariable String vin){
 
         Vin vinNumber = new Vin(vin);
@@ -99,6 +138,7 @@ public class VehicleController {
     }
 
     @GetMapping("/{operationalStatus}/operational-status")
+//    @PreAuthorize("hasAuthority('ROLE_COORDINADOR')('ROLE_ADMINISTRATOR')")
     public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByOperationalStatus(@PathVariable String operationalStatus){
 
         OperationalStatus operationalStatusEnum = OperationalStatus.valueOf(operationalStatus.toUpperCase());
@@ -113,6 +153,7 @@ public class VehicleController {
     }
 
     @GetMapping("/{administrativeStatus}/administrative-status")
+//    @PreAuthorize("hasAuthority('ROLE_COORDINADOR')('ROLE_ADMINISTRATOR')")
     public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByAdministrativeStatus(@PathVariable String administrativeStatus){
 
         AdministrativeStatus administrativeStatusEnum = AdministrativeStatus.valueOf(administrativeStatus.toUpperCase());
@@ -127,6 +168,7 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}/update")
+//    @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> updateVehicle(
             @PathVariable UUID id,
             @RequestBody UpdateVehicleControllerRequestDTO request) {
@@ -139,12 +181,15 @@ public class VehicleController {
     }
 
     @DeleteMapping("/{id}/delete")
+//    @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> deleteVehicleById(@PathVariable UUID id) {
         deleteVehicleByIdUseCase.delete(id);
+        System.out.println("DELETE VEHICLE: " + id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/sell")
+//    @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> sellVehicle(@PathVariable UUID id) {
 
         markVehicleAsSoldUseCase.markVehicleAsSold(id);
@@ -153,6 +198,7 @@ public class VehicleController {
     }
 
     @PatchMapping("/{id}/activate")
+//    @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> activateVehicle(@PathVariable UUID id) {
 
         activateVehicleUseCase.activate(id);
@@ -160,17 +206,6 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{vehicleId}/documents")
-    public ResponseEntity<Void> addDocument(
-            @PathVariable UUID vehicleId,
-            @RequestBody CreateVehicleDocumentRequestDTO request
-    ) {
 
-        addDocumentToVehicleUseCase.addDocument(
-                vehicleId,
-                vehicleDocumentMapper.toCommand(request)
-        );
 
-        return ResponseEntity.status(201).build();
-    }
 }

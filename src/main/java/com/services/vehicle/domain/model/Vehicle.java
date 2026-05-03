@@ -235,12 +235,9 @@ public class Vehicle {
     public boolean hasValidDocument(DocumentType type, LocalDate today) {
         return this.documents.stream()
                 .filter(d -> d.getDocumentType() == type)
-                .anyMatch(d -> {
-                    if (!type.isExpirable()) {
-                        return true;
-                    }
-                    return d.isValid(today);
-                });
+                .anyMatch(d ->
+                        !type.isExpirable() || d.isValid(today)
+                );
     }
 
 

@@ -1,6 +1,6 @@
-package com.services.vehicle.application.usecase.vehicle;
+package com.services.vehicle.application.usecase;
 
-import com.services.vehicle.application.port.in.vehicle.ActivateVehicleUseCase;
+import com.services.vehicle.application.port.in.ActivateVehicleUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.model.Vehicle;
 import lombok.RequiredArgsConstructor;

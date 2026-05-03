@@ -66,6 +66,8 @@ public abstract class VehicleMapper {
     @Mapping(target = "audits", ignore = true)
     public abstract VehicleEntity toEntity(Vehicle domain);
 
+
+
     public abstract List<VehicleEntity> toEntityList(List<Vehicle> domains);
 
     protected LicensePlate map(String value) {

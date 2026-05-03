@@ -1,8 +1,9 @@
-package com.services.vehicle.application.usecase.vehicledocument;
+package com.services.vehicle.application.usecase;
 
 import com.services.vehicle.application.dto.CreateVehicleDocumentCommand;
 import com.services.vehicle.application.mapper.CreateVehicleDocumentCommandMapper;
-import com.services.vehicle.application.port.in.vehicledocument.AddDocumentToVehicleUseCase;
+import com.services.vehicle.application.port.in.AddDocumentToVehicleUseCase;
+import com.services.vehicle.application.port.in.GetAllVehiclesUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.enums.LegalStatus;
 import com.services.vehicle.domain.model.Vehicle;
@@ -20,7 +21,7 @@ public class AddDocumentToVehicleService implements AddDocumentToVehicleUseCase 
     private final CreateVehicleDocumentCommandMapper createVehicleDocumentCommandMapper;
 
     @Override
-    public void addDocument(UUID vehicleId, CreateVehicleDocumentCommand cmd) {
+    public UUID addDocument(UUID vehicleId, CreateVehicleDocumentCommand cmd) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(vehicleId);
 
@@ -32,6 +33,12 @@ public class AddDocumentToVehicleService implements AddDocumentToVehicleUseCase 
 
         vehicle.addDocument(document);
 
-        vehicleRepositoryPort.save(vehicle);
+        Vehicle savedVehicle = vehicleRepositoryPort.save(vehicle);
+
+        return savedVehicle.getDocuments().stream()
+                .filter(d -> d.getDocumentNumber().equals(document.getDocumentNumber()))
+                .findFirst()
+                .map(VehicleDocument::getId)
+                .orElse(null);
     }
 }

@@ -5,6 +5,7 @@ import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.exception.VehicleNotFoundException;
 import com.services.vehicle.domain.model.Vehicle;
+import com.services.vehicle.domain.model.VehicleDocument;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
@@ -43,17 +44,14 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
             entity.setService(vehicle.getService());
             entity.setBodyType(vehicle.getBodyType());
             entity.setFuelType(vehicle.getFuelType());
+            entity.setOperationalStatus(vehicle.getOperationalStatus());
+            entity.setAdministrativeStatus(vehicle.getAdministrativeStatus());
 
             entity.getDocuments().clear();
-
             if (vehicle.getDocuments() != null) {
-                entity.getDocuments().addAll(
-                        vehicleDocumentMapper.toEntityList(
-                                vehicle.getDocuments(),
-                                entity
-                        )
-                );
+                entity.getDocuments().addAll(vehicleDocumentMapper.toEntityList(vehicle.getDocuments(), entity));
             }
+
         }
 
         VehicleEntity saved = jpaVehicleRepository.save(entity);

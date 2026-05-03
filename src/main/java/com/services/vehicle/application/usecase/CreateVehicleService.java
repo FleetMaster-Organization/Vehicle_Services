@@ -1,8 +1,8 @@
-package com.services.vehicle.application.usecase.vehicle;
+package com.services.vehicle.application.usecase;
 
 import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.mapper.CreateVehicleCommandMapper;
-import com.services.vehicle.application.port.in.vehicle.CreateVehicleUseCase;
+import com.services.vehicle.application.port.in.CreateVehicleUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.exception.VehicleAlreadyExistsException;
 import com.services.vehicle.domain.model.Vehicle;

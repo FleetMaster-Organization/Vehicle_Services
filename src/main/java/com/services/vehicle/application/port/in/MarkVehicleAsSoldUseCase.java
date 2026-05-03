@@ -1,4 +1,4 @@
-package com.services.vehicle.application.port.in.vehicle;
+package com.services.vehicle.application.port.in;
 
 import java.util.UUID;
 

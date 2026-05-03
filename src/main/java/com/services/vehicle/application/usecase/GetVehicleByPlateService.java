@@ -1,22 +1,21 @@
-package com.services.vehicle.application.usecase.vehicle;
+package com.services.vehicle.application.usecase;
 
 import com.services.vehicle.application.dto.VehicleResponse;
 import com.services.vehicle.application.mapper.VehicleResponseMapper;
-import com.services.vehicle.application.port.in.vehicle.GetVehicleByIdUseCase;
+import com.services.vehicle.application.port.in.GetVehiclesByPlateUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
+import com.services.vehicle.domain.valueobject.LicensePlate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
-@Service
 @RequiredArgsConstructor
-public class GetVehicleByIdService implements GetVehicleByIdUseCase {
+@Service
+public class GetVehicleByPlateService implements GetVehiclesByPlateUseCase {
     private final VehicleRepositoryPort vehicleRepositoryPort;
     private final VehicleResponseMapper vehicleResponseMapper;
 
     @Override
-    public VehicleResponse execute(UUID id) {
-        return vehicleResponseMapper.toResponse(vehicleRepositoryPort.findById(id));
+    public VehicleResponse execute(LicensePlate plate) {
+        return vehicleResponseMapper.toResponse(vehicleRepositoryPort.findByPlate(plate));
     }
 }

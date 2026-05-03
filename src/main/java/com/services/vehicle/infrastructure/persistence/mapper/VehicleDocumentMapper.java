@@ -41,6 +41,7 @@ public abstract class VehicleDocumentMapper {
                 new ArrayList<>()
         );
     }
+
     public abstract List<VehicleDocument> toDomainList(List<VehicleDocumentEntity> entities);
 
     // -------------------------------------------------------------------------

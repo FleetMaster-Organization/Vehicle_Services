@@ -138,7 +138,7 @@ public class VehicleDocument {
 
     public void checkExpiration(LocalDate today) {
         if (this.legalStatus == LegalStatus.SUSPENDIDO) {
-            return; // la suspensión tiene precedencia
+            return;
         }
 
         if (validityPeriod.isExpired(today)) {

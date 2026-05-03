@@ -1,8 +1,8 @@
-package com.services.vehicle.application.usecase.vehicle;
+package com.services.vehicle.application.usecase;
 
 import com.services.vehicle.application.dto.VehicleResponse;
 import com.services.vehicle.application.mapper.VehicleResponseMapper;
-import com.services.vehicle.application.port.in.vehicle.GetVehiclesByVinUseCase;
+import com.services.vehicle.application.port.in.GetVehiclesByVinUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.valueobject.Vin;
 import lombok.RequiredArgsConstructor;
