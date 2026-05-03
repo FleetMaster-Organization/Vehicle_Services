@@ -1,13 +1,12 @@
-package com.services.vehicle.application.usecase.vehicle;
+package com.services.vehicle.application.usecase.vehicledocument;
 
 import com.services.vehicle.application.dto.CreateVehicleDocumentCommand;
 import com.services.vehicle.application.mapper.CreateVehicleDocumentCommandMapper;
-import com.services.vehicle.application.port.in.vehicle.AddDocumentToVehicleUseCase;
+import com.services.vehicle.application.port.in.vehicledocument.AddDocumentToVehicleUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
+import com.services.vehicle.domain.enums.LegalStatus;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.model.VehicleDocument;
-import com.services.vehicle.domain.valueobject.DocumentNumber;
-import com.services.vehicle.domain.valueobject.ValidityPeriod;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +25,10 @@ public class AddDocumentToVehicleService implements AddDocumentToVehicleUseCase 
         Vehicle vehicle = vehicleRepositoryPort.findById(vehicleId);
 
         VehicleDocument document = createVehicleDocumentCommandMapper.toDomain(cmd, vehicleId);
+
+        if (document.getLegalStatus() == LegalStatus.EXPIRADO) {
+            throw new IllegalArgumentException("El documento del vehiculo se encuentra expirado");
+        }
 
         vehicle.addDocument(document);
 

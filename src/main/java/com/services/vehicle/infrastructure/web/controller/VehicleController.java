@@ -4,6 +4,7 @@ import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.dto.UpdateVehicleCommand;
 import com.services.vehicle.application.dto.VehicleResponse;
 import com.services.vehicle.application.port.in.vehicle.*;
+import com.services.vehicle.application.port.in.vehicledocument.AddDocumentToVehicleUseCase;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.valueobject.LicensePlate;
