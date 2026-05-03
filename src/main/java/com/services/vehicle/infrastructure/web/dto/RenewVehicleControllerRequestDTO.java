@@ -1,8 +1,8 @@
-package com.services.vehicle.application.dto;
+package com.services.vehicle.infrastructure.web.dto;
 
 import java.time.LocalDate;
 
-public record RenewVehicleDocumentCommand(
+public record RenewVehicleControllerRequestDTO(
         String issuedBy,
         LocalDate issueDate,
         LocalDate expirationDate

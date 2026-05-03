@@ -1,9 +1,6 @@
 package com.services.vehicle.infrastructure.web.controller;
 
-import com.services.vehicle.application.dto.CreateVehicleCommand;
-import com.services.vehicle.application.dto.DocumentResponse;
-import com.services.vehicle.application.dto.UpdateVehicleCommand;
-import com.services.vehicle.application.dto.VehicleResponse;
+import com.services.vehicle.application.dto.*;
 import com.services.vehicle.application.port.in.*;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
@@ -41,6 +38,9 @@ public class VehicleController {
     private final ActivateVehicleUseCase activateVehicleUseCase;
     private final AddDocumentToVehicleUseCase addDocumentToVehicleUseCase;
     private final GetDocumentByIdUseCase getDocumentByIdUseCase;
+    private final GetAllDocumentsByVehicleUseCase getAllDocumentsByVehicleUseCase;
+    private final RenewDocumentUseCase renewDocumentUseCase;
+
 
     @PostMapping
 //    @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
@@ -100,6 +100,17 @@ public class VehicleController {
                 getDocumentByIdUseCase.execute(vehicleId, documentId);
 
         return ResponseEntity.ok(vehicleDocumentMapper.toResponse(response));
+    }
+
+    @GetMapping("/{vehicleId}/documents")
+    public ResponseEntity<List<DocumentControllerResponseDTO>> getAllDocumentsByVehicleId(@PathVariable UUID vehicleId) {
+        List<DocumentResponse> documents = getAllDocumentsByVehicleUseCase.execute(vehicleId);
+
+        List<DocumentControllerResponseDTO> response = documents.stream()
+                .map(vehicleDocumentMapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -202,6 +213,17 @@ public class VehicleController {
     public ResponseEntity<Void> activateVehicle(@PathVariable UUID id) {
 
         activateVehicleUseCase.activate(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{vehicleId}/document/{documentId}/renew")
+    public ResponseEntity<Void> renewDocument(@PathVariable UUID vehicleId, @PathVariable UUID documentId,
+                                              @RequestBody RenewVehicleControllerRequestDTO request) {
+
+        RenewVehicleDocumentCommand document = vehicleDocumentMapper.toUpdate(request);
+
+        renewDocumentUseCase.renewDocument(vehicleId,documentId,document);
 
         return ResponseEntity.noContent().build();
     }

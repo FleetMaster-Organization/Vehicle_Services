@@ -1,7 +1,9 @@
 package com.services.vehicle.domain.model;
 
+import com.services.vehicle.application.dto.RenewVehicleDocumentCommand;
 import com.services.vehicle.domain.enums.DocumentType;
 import com.services.vehicle.domain.enums.LegalStatus;
+import com.services.vehicle.domain.exception.VehicleDocumentNotFoundException;
 import com.services.vehicle.domain.valueobject.DocumentNumber;
 import com.services.vehicle.domain.valueobject.ValidityPeriod;
 import com.services.vehicle.domain.exception.InvalidDomainDataException;
@@ -107,7 +109,6 @@ public class VehicleDocument {
     }
 
     public void renew(
-            DocumentNumber newDocumentNumber,
             String newIssuedBy,
             LocalDate newIssueDate,
             LocalDate newExpirationDate
@@ -119,7 +120,12 @@ public class VehicleDocument {
             );
         }
 
-        this.documentNumber = newDocumentNumber;
+        if (newIssueDate.isAfter(newExpirationDate)) {
+            throw new InvalidDomainDataException(
+                    "La fecha de emisión no puede ser posterior a la de vencimiento."
+            );
+        }
+
         this.issuedBy = newIssuedBy;
 
         this.validityPeriod =
@@ -130,6 +136,8 @@ public class VehicleDocument {
 
         this.legalStatus = LegalStatus.VALIDO;
     }
+
+
 
     public boolean isValid(LocalDate today) {
         return legalStatus == LegalStatus.VALIDO

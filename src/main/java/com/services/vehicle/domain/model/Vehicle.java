@@ -1,11 +1,10 @@
 package com.services.vehicle.domain.model;
 
+import com.services.vehicle.application.dto.RenewVehicleDocumentCommand;
 import com.services.vehicle.domain.enums.*;
 
-import com.services.vehicle.domain.valueobject.EngineNumber;
-import com.services.vehicle.domain.valueobject.LicensePlate;
-import com.services.vehicle.domain.valueobject.Vin;
-import com.services.vehicle.domain.valueobject.Mileage;
+import com.services.vehicle.domain.exception.VehicleDocumentNotFoundException;
+import com.services.vehicle.domain.valueobject.*;
 import com.services.vehicle.domain.exception.InvalidDomainDataException;
 import com.services.vehicle.domain.exception.InvalidVehicleStateException;
 import lombok.*;
@@ -198,6 +197,19 @@ public class Vehicle {
         this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
     }
 
+    public void renewDocument(UUID documentId, RenewVehicleDocumentCommand cmd) {
+
+        VehicleDocument document = this.documents.stream()
+                .filter(d -> d.getId().equals(documentId))
+                .findFirst()
+                .orElseThrow(() -> new VehicleDocumentNotFoundException(documentId));
+
+        document.renew(
+                cmd.issuedBy(),
+                cmd.issueDate(),
+                cmd.expirationDate()
+        );
+    }
     public void scrap() {
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
