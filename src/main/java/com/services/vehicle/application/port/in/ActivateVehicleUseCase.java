@@ -5,7 +5,7 @@ import com.services.vehicle.application.dto.RenewVehicleDocumentCommand;
 import java.util.UUID;
 
 public interface ActivateVehicleUseCase {
-    void activate(UUID id);
+    void activate(UUID id, String modifiedBy);
 
 
 }

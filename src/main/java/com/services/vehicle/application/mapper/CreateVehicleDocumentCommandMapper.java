@@ -26,5 +26,6 @@ public interface CreateVehicleDocumentCommandMapper {
                         cmd.expirationDate()
                 )
         );
+
     }
 }

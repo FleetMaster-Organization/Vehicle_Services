@@ -62,6 +62,7 @@ public class Vehicle {
         }
 
 
+
         this.plate = plate;
         this.vin = vin;
         this.brand = brand;
@@ -142,17 +143,14 @@ public class Vehicle {
             );
         }
 
-        String oldStatus = this.operationalStatus != null ? this.operationalStatus.name() : null;
-        String oldAdminStatus = this.administrativeStatus != null ? this.administrativeStatus.name() : null;
-
-        this.operationalStatus = OperationalStatus.EN_MANTENIMIENTO;
-        this.administrativeStatus = AdministrativeStatus.RESERVADO;
-
-        registerChange("operationalStatus", oldStatus, this.operationalStatus.name(), modifiedBy);
-        registerChange("administrativeStatus", oldAdminStatus, this.administrativeStatus.name(), modifiedBy);
+        updateStatuses(
+                OperationalStatus.EN_MANTENIMIENTO,
+                AdministrativeStatus.RESERVADO,
+                modifiedBy
+        );
     }
 
-    public void assign(LocalDate today) {
+    public void assign(LocalDate today, String modifiedBy) {
         if (this.operationalStatus != OperationalStatus.ACTIVO) {
             throw new InvalidVehicleStateException(
                     "Solo se pueden asignar vehículos ACTIVOS."
@@ -163,30 +161,45 @@ public class Vehicle {
                     "No se puede asignar el vehículo: uno o más documentos requeridos están vencidos o faltan."
             );
         }
-        this.administrativeStatus = AdministrativeStatus.ASIGNADO;
-        this.operationalStatus = OperationalStatus.ACTIVO;
+
+        updateStatuses(
+                OperationalStatus.ACTIVO,
+                AdministrativeStatus.ASIGNADO,
+                modifiedBy
+        );
     }
 
-    public void release() {
+    public void release(String modifiedBy) {
+
+
         if (this.administrativeStatus != AdministrativeStatus.ASIGNADO) {
             throw new InvalidVehicleStateException("El vehículo no está actualmente asignado.");
         }
+
         this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
+
+        updateStatuses(
+                OperationalStatus.ACTIVO,
+                AdministrativeStatus.DISPONIBLE,
+                modifiedBy
+        );
     }
 
-    public void updateCurrentKm(Mileage newMileage) {
+    public void updateCurrentKm(Mileage newMileage, String modifiedBy) {
         if (!newMileage.greaterThan(currentKm)) {
             throw new InvalidDomainDataException(
                     "El nuevo kilometraje (%f km) debe ser mayor que el actual (%f km)."
                             .formatted(newMileage.value(), currentKm.value())
             );
         }
+        String oldVal = this.currentKm != null ? String.valueOf(this.currentKm.value()) : null;
         this.currentKm = newMileage;
+        registerChange("currentKm", oldVal, String.valueOf(newMileage.value()), modifiedBy);
     }
 
 
 
-    public void activate() {
+    public void activate(String modifiedBy) {
 
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException(
@@ -200,11 +213,14 @@ public class Vehicle {
             );
         }
 
-        this.operationalStatus = OperationalStatus.ACTIVO;
-        this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
+        updateStatuses(
+                OperationalStatus.ACTIVO,
+                AdministrativeStatus.DISPONIBLE,
+                modifiedBy
+        );
     }
 
-    public void renewDocument(UUID documentId, RenewVehicleDocumentCommand cmd) {
+    public void renewDocument(UUID documentId, RenewVehicleDocumentCommand cmd, String modifiedBy) {
 
         VehicleDocument document = this.documents.stream()
                 .filter(d -> d.getId().equals(documentId))
@@ -214,16 +230,22 @@ public class Vehicle {
         document.renew(
                 cmd.issuedBy(),
                 cmd.issueDate(),
-                cmd.expirationDate()
+                cmd.expirationDate(),
+                modifiedBy
         );
+
     }
 
-    public void scrap() {
+    public void scrap(String modifiedBy) {
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
         }
-        this.operationalStatus = OperationalStatus.DESECHADO;
-        this.administrativeStatus = AdministrativeStatus.RETIRADO;
+
+        updateStatuses(
+                OperationalStatus.DESECHADO,
+                AdministrativeStatus.RETIRADO,
+                modifiedBy
+        );
     }
 
 
@@ -234,7 +256,7 @@ public class Vehicle {
                 .toList();
     }
 
-    public void markAsSold() {
+    public void markAsSold(String modifiedBy) {
         if (this.administrativeStatus != AdministrativeStatus.DISPONIBLE) {
             throw new InvalidVehicleStateException("Solo DISPONIBLES pueden venderse");
         }
@@ -243,12 +265,16 @@ public class Vehicle {
             throw new InvalidVehicleStateException("Solo ACTIVO puede venderse");
         }
 
-        this.administrativeStatus = AdministrativeStatus.VENDIDO;
-        this.operationalStatus = OperationalStatus.INACTIVO;
+        updateStatuses(
+                OperationalStatus.INACTIVO,
+                AdministrativeStatus.VENDIDO,
+                modifiedBy
+        );
     }
 
-    public void updateDocumentsStatus(LocalDate today) {
-        this.documents.forEach(doc -> doc.checkExpiration(today));
+    public void updateDocumentsStatus(LocalDate today, String modifiedBy) {
+
+        this.documents.forEach(doc -> doc.checkExpiration(today,modifiedBy));
     }
 
 
@@ -263,7 +289,7 @@ public class Vehicle {
     }
 
 
-    public void addDocument(VehicleDocument document) {
+    public void addDocument(VehicleDocument document, String modifiedBy) {
 
         DocumentType type = document.getDocumentType();
 
@@ -288,6 +314,8 @@ public class Vehicle {
             );
         }
 
+        document.markAsCreated(modifiedBy);
+
         this.documents.add(document);
     }
 
@@ -298,31 +326,43 @@ public class Vehicle {
                 .allMatch(type -> hasValidDocument(type, today));
     }
 
-    public void updateColor(String color) {
+    public void updateColor(String color, String modifiedBy) {
+        String oldColor = this.color;
         this.color = color;
+        registerChange("color", oldColor, color, modifiedBy);
     }
 
-    public void updateDisplacement(Integer displacementCc) {
+    public void updateDisplacement(Integer displacementCc, String modifiedBy) {
         if (displacementCc <= 0) {
             throw new InvalidDomainDataException("La cilindrada debe ser positiva");
         }
+        String oldVal = this.displacementCc != null ? this.displacementCc.toString() : null;
         this.displacementCc = displacementCc;
+        registerChange("displacementCc", oldVal, displacementCc.toString(), modifiedBy);
     }
 
-    public void updateService(ServiceType service) {
+    public void updateService(ServiceType service, String modifiedBy) {
+        String oldVal = this.service != null ? this.service.name() : null;
         this.service = service;
+        registerChange("service", oldVal, service.name(), modifiedBy);
     }
 
-    public void updateBodyType(BodyType bodyType) {
+    public void updateBodyType(BodyType bodyType, String modifiedBy) {
+        String oldVal = this.bodyType != null ? this.bodyType.name() : null;
         this.bodyType = bodyType;
+        registerChange("bodyType", oldVal, bodyType.name(), modifiedBy);
     }
 
-    public void updateFuelType(FuelType fuelType) {
+    public void updateFuelType(FuelType fuelType, String modifiedBy) {
+        String oldVal = this.fuelType != null ? this.fuelType.name() : null;
         this.fuelType = fuelType;
+        registerChange("fuelType", oldVal, fuelType.name(), modifiedBy);
     }
 
-    public void updateEngineNumber(EngineNumber engineNumber) {
+    public void updateEngineNumber(EngineNumber engineNumber, String modifiedBy) {
+        String oldVal = this.engineNumber != null ? this.engineNumber.value() : null;
         this.engineNumber = engineNumber;
+        registerChange("engineNumber", oldVal, engineNumber.value(), modifiedBy);
     }
 
     public void suspend(String reason, String modifiedBy) {
@@ -330,17 +370,20 @@ public class Vehicle {
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException("No se puede suspender un vehículo desechado.");
         }
+        if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
+            throw new InvalidVehicleStateException("No se puede vender un vehículo vendido.");
+        }
 
-        String oldStatus = this.operationalStatus != null ? this.operationalStatus.name() : null;
-        String oldAdminStatus = this.administrativeStatus != null ? this.administrativeStatus.name() : null;
         String oldReason = this.suspensionReason;
 
-        this.operationalStatus = OperationalStatus.SUSPENDIDO;
-        this.administrativeStatus = AdministrativeStatus.RETIRADO;
+
         this.suspensionReason = reason;
 
-        registerChange("operationalStatus", oldStatus, this.operationalStatus.name(), modifiedBy);
-        registerChange("administrativeStatus", oldAdminStatus, this.administrativeStatus.name(), modifiedBy);
+        updateStatuses(
+                OperationalStatus.SUSPENDIDO,
+                AdministrativeStatus.RETIRADO,
+                modifiedBy
+        );
         registerChange("suspensionReason", oldReason, reason, modifiedBy);
     }
 
@@ -365,6 +408,49 @@ public class Vehicle {
                 newValue,
                 modifiedBy
         ));
+    }
+
+    public void markAsCreated(String createdBy) {
+        registerCreation(createdBy);
+    }
+
+    private void registerCreation(String createdBy) {
+        this.audits.add(VehicleAudit.of(
+                this.id,
+                AuditAction.CREATE,
+                this.plate != null ? this.plate.value() : "vehicle",
+                null,
+                "CREATED",
+                createdBy
+        ));
+    }
+
+
+
+
+    private void updateStatuses(
+            OperationalStatus newOperationalStatus,
+            AdministrativeStatus newAdministrativeStatus,
+            String modifiedBy
+    ) {
+        String oldOperationalStatus = this.operationalStatus != null
+                ? this.operationalStatus.name()
+                : null;
+
+        String oldAdministrativeStatus = this.administrativeStatus != null
+                ? this.administrativeStatus.name()
+                : null;
+
+        if (Objects.equals(oldOperationalStatus, newOperationalStatus.name()) &&
+                Objects.equals(oldAdministrativeStatus, newAdministrativeStatus.name())) {
+            return;
+        }
+
+        this.operationalStatus = newOperationalStatus;
+        this.administrativeStatus = newAdministrativeStatus;
+
+        registerChange("operationalStatus", oldOperationalStatus, newOperationalStatus.name(), modifiedBy);
+        registerChange("administrativeStatus", oldAdministrativeStatus, newAdministrativeStatus.name(), modifiedBy);
     }
 
 }

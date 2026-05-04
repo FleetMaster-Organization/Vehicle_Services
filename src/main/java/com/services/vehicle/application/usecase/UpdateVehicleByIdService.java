@@ -18,36 +18,36 @@ public class UpdateVehicleByIdService implements UpdateVehicleByIdUseCase {
     private final VehicleRepositoryPort vehicleRepositoryPort;
 
     @Override
-    public void update(UpdateVehicleCommand cmd, UUID id) {
+    public void update(UpdateVehicleCommand cmd, UUID id, String modifiedBy) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(id);
 
         if (cmd.displacementCc() != null) {
-            vehicle.updateDisplacement(cmd.displacementCc());
+            vehicle.updateDisplacement(cmd.displacementCc(), modifiedBy);
         }
 
         if (cmd.color() != null) {
-            vehicle.updateColor(cmd.color());
+            vehicle.updateColor(cmd.color(), modifiedBy);
         }
 
         if (cmd.service() != null) {
-            vehicle.updateService(cmd.service());
+            vehicle.updateService(cmd.service(), modifiedBy);
         }
 
         if (cmd.bodyType() != null) {
-            vehicle.updateBodyType(cmd.bodyType());
+            vehicle.updateBodyType(cmd.bodyType(), modifiedBy);
         }
 
         if (cmd.fuelType() != null) {
-            vehicle.updateFuelType(cmd.fuelType());
+            vehicle.updateFuelType(cmd.fuelType(), modifiedBy);
         }
 
         if (cmd.engineNumber() != null) {
-            vehicle.updateEngineNumber(new EngineNumber(cmd.engineNumber()));
+            vehicle.updateEngineNumber(new EngineNumber(cmd.engineNumber()), modifiedBy);
         }
 
         if (cmd.currentKm() != null) {
-            vehicle.updateCurrentKm(new Mileage(cmd.currentKm()));
+            vehicle.updateCurrentKm(new Mileage(cmd.currentKm()), modifiedBy);
         }
 
         if (

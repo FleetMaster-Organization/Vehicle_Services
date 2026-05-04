@@ -21,7 +21,7 @@ public class AddDocumentToVehicleService implements AddDocumentToVehicleUseCase 
     private final CreateVehicleDocumentCommandMapper createVehicleDocumentCommandMapper;
 
     @Override
-    public UUID addDocument(UUID vehicleId, CreateVehicleDocumentCommand cmd) {
+    public UUID addDocument(UUID vehicleId, CreateVehicleDocumentCommand cmd, String modifiedBy) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(vehicleId);
 
@@ -31,7 +31,8 @@ public class AddDocumentToVehicleService implements AddDocumentToVehicleUseCase 
             throw new IllegalArgumentException("El documento del vehiculo se encuentra expirado");
         }
 
-        vehicle.addDocument(document);
+
+        vehicle.addDocument(document, modifiedBy);
 
         Vehicle savedVehicle = vehicleRepositoryPort.save(vehicle);
 

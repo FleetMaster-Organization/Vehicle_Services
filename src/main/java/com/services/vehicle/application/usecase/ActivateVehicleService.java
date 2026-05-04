@@ -15,10 +15,10 @@ public class ActivateVehicleService implements ActivateVehicleUseCase {
     private final VehicleRepositoryPort vehicleRepositoryPort;
 
     @Override
-    public void activate(UUID id) {
+    public void activate(UUID id, String modifiedBy) {
         Vehicle vehicle = vehicleRepositoryPort.findById(id);
 
-        vehicle.activate();
+        vehicle.activate(modifiedBy);
 
         vehicleRepositoryPort.save(vehicle);
     }

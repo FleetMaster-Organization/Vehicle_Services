@@ -15,11 +15,11 @@ public class ReleaseVehicleService implements ReleaseVehicleUseCase {
     private final VehicleRepositoryPort vehicleRepositoryPort;
 
     @Override
-    public void release(UUID id) {
+    public void release(UUID id, String modifiedBy) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(id);
 
-        vehicle.release();
+        vehicle.release(modifiedBy);
 
         vehicleRepositoryPort.save(vehicle);
 

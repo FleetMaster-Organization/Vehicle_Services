@@ -16,11 +16,11 @@ public class UpdateDocumentStatusService implements UpdateDocumentsStatusUseCase
     private final VehicleRepositoryPort vehicleRepositoryPort;
 
     @Override
-    public void execute(UUID vehicleId) {
+    public void execute(UUID vehicleId, String modifiedBy) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(vehicleId);
 
-        vehicle.updateDocumentsStatus(LocalDate.now());
+        vehicle.updateDocumentsStatus(LocalDate.now(),modifiedBy);
 
         vehicleRepositoryPort.save(vehicle);
 

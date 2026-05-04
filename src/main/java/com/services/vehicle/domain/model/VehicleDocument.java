@@ -1,8 +1,7 @@
 package com.services.vehicle.domain.model;
 
 import com.services.vehicle.application.dto.RenewVehicleDocumentCommand;
-import com.services.vehicle.domain.enums.DocumentType;
-import com.services.vehicle.domain.enums.LegalStatus;
+import com.services.vehicle.domain.enums.*;
 import com.services.vehicle.domain.exception.VehicleDocumentNotFoundException;
 import com.services.vehicle.domain.valueobject.DocumentNumber;
 import com.services.vehicle.domain.valueobject.ValidityPeriod;
@@ -13,6 +12,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -111,12 +111,13 @@ public class VehicleDocument {
     public void renew(
             String newIssuedBy,
             LocalDate newIssueDate,
-            LocalDate newExpirationDate
+            LocalDate newExpirationDate,
+            String modifiedBy
     ) {
 
         if (this.legalStatus == LegalStatus.SUSPENDIDO) {
             throw new InvalidVehicleStateException(
-                    "No se puede renovar un documento suspendido. Primero hay que levantar la suspensión."
+                    "No se puede renovar un documento suspendido."
             );
         }
 
@@ -126,20 +127,37 @@ public class VehicleDocument {
             );
         }
 
+        String oldIssuedBy = this.issuedBy;
+        String oldIssueDate = this.validityPeriod.issueDate().toString();
+        String oldExpirationDate = this.validityPeriod.expirationDate().toString();
         this.issuedBy = newIssuedBy;
 
-        this.validityPeriod =
-                validityPeriod.renew(
-                        newIssueDate,
-                        newExpirationDate
-                );
+        this.validityPeriod = validityPeriod.renew(
+                newIssueDate,
+                newExpirationDate
+        );
 
         this.legalStatus = LegalStatus.VALIDO;
+
+        registerChange("issuedBy", oldIssuedBy, this.issuedBy, modifiedBy);
+        registerChange("issueDate", oldIssueDate, newIssueDate.toString(), modifiedBy);
+        registerChange("expirationDate", oldExpirationDate, newExpirationDate.toString(), modifiedBy);
     }
 
+    public void markAsCreated(String createdBy) {
+        registerCreationDocument(createdBy);
+    }
 
-
-
+    private void registerCreationDocument(String createdBy) {
+        this.audits.add(VehicleDocumentAudit.of(
+                this.id,
+                AuditAction.CREATE,
+                this.documentType != null ? this.documentType.name() : "document",
+                null,
+                "CREATED",
+                createdBy
+        ));
+    }
 
 
     public boolean isValid(LocalDate today) {
@@ -147,10 +165,13 @@ public class VehicleDocument {
                 && validityPeriod.isValid(today);
     }
 
-    public void checkExpiration(LocalDate today) {
+    public void checkExpiration(LocalDate today, String modifiedBy) {
+
         if (this.legalStatus == LegalStatus.SUSPENDIDO) {
             return;
         }
+
+        String oldStatus = this.legalStatus.name();
 
         if (validityPeriod.isExpired(today)) {
             this.legalStatus = LegalStatus.EXPIRADO;
@@ -159,6 +180,8 @@ public class VehicleDocument {
         } else {
             this.legalStatus = LegalStatus.VALIDO;
         }
+
+        registerChange("legalStatus", oldStatus, this.legalStatus.name(), modifiedBy);
     }
 
     public boolean isAboutToExpire(
@@ -169,7 +192,23 @@ public class VehicleDocument {
     }
 
 
+    private void registerChange(
+            String field,
+            String oldValue,
+            String newValue,
+            String modifiedBy
+    ) {
+        if (Objects.equals(oldValue, newValue)) return;
 
+        this.audits.add(VehicleDocumentAudit.of(
+                this.id,
+                AuditAction.UPDATE,
+                field,
+                oldValue,
+                newValue,
+                modifiedBy
+        ));
+    }
 
 
 }

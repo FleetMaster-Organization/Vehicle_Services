@@ -16,11 +16,11 @@ public class AssignVehicleService implements AssignVehicleUseCase {
     private final VehicleRepositoryPort  vehicleRepositoryPort;
 
     @Override
-    public void assign(UUID id) {
+    public void assign(UUID id, String modifiedBy) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(id);
 
-        vehicle.assign(LocalDate.now());
+        vehicle.assign(LocalDate.now(), modifiedBy);
 
         vehicleRepositoryPort.save(vehicle);
     }

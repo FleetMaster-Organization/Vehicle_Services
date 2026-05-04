@@ -21,7 +21,7 @@ public class CreateVehicleService implements CreateVehicleUseCase {
     private final CreateVehicleCommandMapper mapper;
 
     @Override
-    public UUID create(CreateVehicleCommand cmd) {
+    public UUID create(CreateVehicleCommand cmd, String createdBy) {
 
         if (vehicleRepositoryPort.existsByPlate(cmd.plate())) {
             throw new VehicleAlreadyExistsException(new LicensePlate(cmd.plate()));
@@ -33,7 +33,10 @@ public class CreateVehicleService implements CreateVehicleUseCase {
 
         Vehicle vehicle = mapper.toDomain(cmd);
 
+        vehicle.markAsCreated(createdBy);
+
         Vehicle saved = vehicleRepositoryPort.save(vehicle);
+
 
         return saved.getId();
     }

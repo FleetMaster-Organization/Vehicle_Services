@@ -5,10 +5,14 @@ import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.exception.VehicleNotFoundException;
 import com.services.vehicle.domain.model.Vehicle;
+import com.services.vehicle.domain.model.VehicleAudit;
 import com.services.vehicle.domain.model.VehicleDocument;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
+import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentEntity;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
+import com.services.vehicle.infrastructure.persistence.mapper.VehicleAuditMapper;
+import com.services.vehicle.infrastructure.persistence.mapper.VehicleDocumentAuditMapper;
 import com.services.vehicle.infrastructure.persistence.mapper.VehicleDocumentMapper;
 import com.services.vehicle.infrastructure.persistence.mapper.VehicleMapper;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +28,8 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
     private final JpaVehicleRepository jpaVehicleRepository;
     private final VehicleMapper vehicleMapper;
     private final VehicleDocumentMapper vehicleDocumentMapper;
-    private final com.services.vehicle.infrastructure.persistence.mapper.VehicleAuditMapper vehicleAuditMapper;
+    private final VehicleAuditMapper vehicleAuditMapper;
+    private final VehicleDocumentAuditMapper vehicleDocumentAuditMapper;
 
     @Override
     public Vehicle save(Vehicle vehicle) {
@@ -34,9 +39,16 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
         if (vehicle.getId() == null) {
             entity = vehicleMapper.toEntity(vehicle);
 
+            if (vehicle.getAudits() != null) {
+                entity.getAudits().addAll(
+                        vehicleAuditMapper.toEntityList(vehicle.getAudits(), entity)
+                );
+            }
+
         } else {
             entity = jpaVehicleRepository.findById(vehicle.getId())
                     .orElseThrow(() -> new VehicleNotFoundException(vehicle.getId()));
+
 
             entity.setColor(vehicle.getColor());
             entity.setDisplacementCc(vehicle.getDisplacementCc());
@@ -49,14 +61,51 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
             entity.setAdministrativeStatus(vehicle.getAdministrativeStatus());
             entity.setSuspensionReason(vehicle.getSuspensionReason());
 
-            entity.getDocuments().clear();
-            if (vehicle.getDocuments() != null) {
-                entity.getDocuments().addAll(vehicleDocumentMapper.toEntityList(vehicle.getDocuments(), entity));
+            for (VehicleAudit audit : vehicle.getAudits()) {
+
+                boolean exists = entity.getAudits().stream()
+                        .anyMatch(a -> a.getId() != null && a.getId().equals(audit.getId()));
+
+                if (!exists) {
+                    entity.getAudits().add(
+                            vehicleAuditMapper.toEntity(audit, entity)
+                    );
+                }
             }
 
-            entity.getAudits().clear();
-            if (vehicle.getAudits() != null) {
-                entity.getAudits().addAll(vehicleAuditMapper.toEntityList(vehicle.getAudits(), entity));
+            if (vehicle.getDocuments() != null) {
+
+                for (VehicleDocument docDomain : vehicle.getDocuments()) {
+
+                    VehicleDocumentEntity docEntity = entity.getDocuments().stream()
+                            .filter(d -> d.getId().equals(docDomain.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (docEntity == null) {
+                        docEntity = vehicleDocumentMapper.toEntity(docDomain, entity);
+                        entity.getDocuments().add(docEntity);
+                    } else {
+                        docEntity.setIssuedBy(docDomain.getIssuedBy());
+                        docEntity.setLegalStatus(docDomain.getLegalStatus());
+                        docEntity.setIssueDate(docDomain.getValidityPeriod().issueDate());
+                        docEntity.setExpirationDate(docDomain.getValidityPeriod().expirationDate());
+                    }
+
+
+                    if (docDomain.getAudits() != null) {
+                        for (com.services.vehicle.domain.model.VehicleDocumentAudit docAuditDomain : docDomain.getAudits()) {
+                            boolean auditExists = docEntity.getAudits().stream()
+                                    .anyMatch(a -> a.getId() != null && a.getId().equals(docAuditDomain.getId()));
+
+                            if (!auditExists) {
+                                docEntity.getAudits().add(
+                                        vehicleDocumentAuditMapper.toEntity(docAuditDomain, docEntity)
+                                );
+                            }
+                        }
+                    }
+                }
             }
 
         }

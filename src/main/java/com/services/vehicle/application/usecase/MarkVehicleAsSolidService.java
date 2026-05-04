@@ -14,11 +14,11 @@ public class MarkVehicleAsSolidService implements MarkVehicleAsSoldUseCase {
     private final VehicleRepositoryPort vehicleRepositoryPort;
 
     @Override
-    public void markVehicleAsSold( UUID id) {
+    public void markVehicleAsSold( UUID id, String modifiedBy) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(id);
 
-        vehicle.markAsSold();
+        vehicle.markAsSold(modifiedBy);
 
         vehicleRepositoryPort.save(vehicle);
 
