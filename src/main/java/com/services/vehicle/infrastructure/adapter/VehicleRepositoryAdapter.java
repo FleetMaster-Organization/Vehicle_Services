@@ -24,6 +24,7 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
     private final JpaVehicleRepository jpaVehicleRepository;
     private final VehicleMapper vehicleMapper;
     private final VehicleDocumentMapper vehicleDocumentMapper;
+    private final com.services.vehicle.infrastructure.persistence.mapper.VehicleAuditMapper vehicleAuditMapper;
 
     @Override
     public Vehicle save(Vehicle vehicle) {
@@ -51,6 +52,11 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
             entity.getDocuments().clear();
             if (vehicle.getDocuments() != null) {
                 entity.getDocuments().addAll(vehicleDocumentMapper.toEntityList(vehicle.getDocuments(), entity));
+            }
+
+            entity.getAudits().clear();
+            if (vehicle.getAudits() != null) {
+                entity.getAudits().addAll(vehicleAuditMapper.toEntityList(vehicle.getAudits(), entity));
             }
 
         }

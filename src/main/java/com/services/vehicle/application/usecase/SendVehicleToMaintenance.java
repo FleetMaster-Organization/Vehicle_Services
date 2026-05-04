@@ -15,11 +15,11 @@ public class SendVehicleToMaintenance implements SendVehicleToMaintenanceUseCase
     private final VehicleRepositoryPort vehicleRepositoryPort;
 
     @Override
-    public void sendVehicleToMaintenance(UUID id) {
+    public void sendVehicleToMaintenance(UUID id, String modifiedBy) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(id);
 
-        vehicle.sendToMaintenance();
+        vehicle.sendToMaintenance(modifiedBy);
 
         vehicleRepositoryPort.save(vehicle);
 

@@ -11,11 +11,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
+import java.util.*;
 
 
 /**
@@ -134,7 +130,7 @@ public class Vehicle {
     // Lógica de negocio
     // -------------------------------------------------------------------------
 
-    public void sendToMaintenance() {
+    public void sendToMaintenance(String modifiedBy) {
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException(
                     "Un vehículo dado de baja no puede enviarse a mantenimiento."
@@ -145,8 +141,15 @@ public class Vehicle {
                     "El vehículo ya está en mantenimiento."
             );
         }
+
+        String oldStatus = this.operationalStatus != null ? this.operationalStatus.name() : null;
+        String oldAdminStatus = this.administrativeStatus != null ? this.administrativeStatus.name() : null;
+
         this.operationalStatus = OperationalStatus.EN_MANTENIMIENTO;
         this.administrativeStatus = AdministrativeStatus.RESERVADO;
+
+        registerChange("operationalStatus", oldStatus, this.operationalStatus.name(), modifiedBy);
+        registerChange("administrativeStatus", oldAdminStatus, this.administrativeStatus.name(), modifiedBy);
     }
 
     public void assign(LocalDate today) {
@@ -250,6 +253,7 @@ public class Vehicle {
 
 
 
+
     public boolean hasValidDocument(DocumentType type, LocalDate today) {
         return this.documents.stream()
                 .filter(d -> d.getDocumentType() == type)
@@ -321,18 +325,46 @@ public class Vehicle {
         this.engineNumber = engineNumber;
     }
 
-    public void suspend(String reason) {
+    public void suspend(String reason, String modifiedBy) {
+
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
             throw new InvalidVehicleStateException("No se puede suspender un vehículo desechado.");
         }
 
+        String oldStatus = this.operationalStatus != null ? this.operationalStatus.name() : null;
+        String oldAdminStatus = this.administrativeStatus != null ? this.administrativeStatus.name() : null;
+        String oldReason = this.suspensionReason;
+
         this.operationalStatus = OperationalStatus.SUSPENDIDO;
         this.administrativeStatus = AdministrativeStatus.RETIRADO;
         this.suspensionReason = reason;
+
+        registerChange("operationalStatus", oldStatus, this.operationalStatus.name(), modifiedBy);
+        registerChange("administrativeStatus", oldAdminStatus, this.administrativeStatus.name(), modifiedBy);
+        registerChange("suspensionReason", oldReason, reason, modifiedBy);
     }
 
     public String getSuspensionReason() {
         return this.operationalStatus == OperationalStatus.SUSPENDIDO ? this.suspensionReason : null;
+    }
+
+
+    private void registerChange(
+            String field,
+            String oldValue,
+            String newValue,
+            String modifiedBy
+    ) {
+        if (Objects.equals(oldValue, newValue)) return;
+
+        this.audits.add(VehicleAudit.of(
+                this.id,
+                AuditAction.UPDATE,
+                field,
+                oldValue,
+                newValue,
+                modifiedBy
+        ));
     }
 
 }

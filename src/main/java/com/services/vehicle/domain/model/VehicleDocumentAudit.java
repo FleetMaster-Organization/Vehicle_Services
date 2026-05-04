@@ -41,7 +41,6 @@ public class VehicleDocumentAudit {
         }
 
         return VehicleDocumentAudit.builder()
-                .id(UUID.randomUUID())
                 .documentId(documentId)
                 .actionType(action)
                 .modifiedField(modifiedField)

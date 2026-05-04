@@ -34,7 +34,6 @@ public class VehicleAudit {
                                   String modifiedField, String oldValue,
                                   String newValue, String modifiedBy) {
         return VehicleAudit.builder()
-                .id(UUID.randomUUID())
                 .vehicleId(vehicleId)
                 .actionType(action)
                 .modifiedField(modifiedField)

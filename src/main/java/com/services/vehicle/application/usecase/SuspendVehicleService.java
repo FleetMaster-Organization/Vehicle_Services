@@ -15,11 +15,11 @@ public class SuspendVehicleService implements SuspendVehicleUseCase {
 
 
     @Override
-    public void suspend(UUID id, String reason) {
+    public void suspend(UUID id, String reason, String modifiedBy) {
 
         Vehicle vehicle = vehicleRepositoryPort.findById(id);
 
-        vehicle.suspend(reason);
+        vehicle.suspend(reason, modifiedBy);
 
         vehicleRepositoryPort.save(vehicle);
     }
