@@ -44,6 +44,7 @@ public class Vehicle {
     private Mileage currentKm;
     private OperationalStatus operationalStatus;
     private AdministrativeStatus administrativeStatus;
+    private String suspensionReason;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -105,6 +106,7 @@ public class Vehicle {
             Mileage currentKm,
             OperationalStatus operationalStatus,
             AdministrativeStatus administrativeStatus,
+            String suspensionReason,
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             List<VehicleDocument> documents,
@@ -119,6 +121,7 @@ public class Vehicle {
         v.id = id;
         v.operationalStatus = operationalStatus;
         v.administrativeStatus = administrativeStatus;
+        v.suspensionReason = suspensionReason;
         v.createdAt = createdAt;
         v.updatedAt = updatedAt;
         v.documents = documents;
@@ -217,7 +220,7 @@ public class Vehicle {
             throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
         }
         this.operationalStatus = OperationalStatus.DESECHADO;
-        this.administrativeStatus = AdministrativeStatus.SUSPENDIDO;
+        this.administrativeStatus = AdministrativeStatus.RETIRADO;
     }
 
 
@@ -239,6 +242,10 @@ public class Vehicle {
 
         this.administrativeStatus = AdministrativeStatus.VENDIDO;
         this.operationalStatus = OperationalStatus.INACTIVO;
+    }
+
+    public void updateDocumentsStatus(LocalDate today) {
+        this.documents.forEach(doc -> doc.checkExpiration(today));
     }
 
 
@@ -314,5 +321,18 @@ public class Vehicle {
         this.engineNumber = engineNumber;
     }
 
+    public void suspend(String reason) {
+        if (this.operationalStatus == OperationalStatus.DESECHADO) {
+            throw new InvalidVehicleStateException("No se puede suspender un vehículo desechado.");
+        }
+
+        this.operationalStatus = OperationalStatus.SUSPENDIDO;
+        this.administrativeStatus = AdministrativeStatus.RETIRADO;
+        this.suspensionReason = reason;
+    }
+
+    public String getSuspensionReason() {
+        return this.operationalStatus == OperationalStatus.SUSPENDIDO ? this.suspensionReason : null;
+    }
 
 }

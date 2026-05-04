@@ -3,6 +3,8 @@ package com.services.vehicle.infrastructure.web.dto;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 public record VehicleControllerResponseDTO(
         UUID id,
         String plate,
@@ -22,5 +24,7 @@ public record VehicleControllerResponseDTO(
         String operationalStatus,
         String administrativeStatus,
         LocalDate createdAt,
-        LocalDate updatedAt
+        LocalDate updatedAt,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        String suspensionReason
 ) {}

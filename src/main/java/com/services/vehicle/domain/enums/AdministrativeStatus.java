@@ -5,5 +5,5 @@ public enum AdministrativeStatus {
     ASIGNADO,
     RESERVADO,
     VENDIDO,
-    SUSPENDIDO
+    RETIRADO
 }

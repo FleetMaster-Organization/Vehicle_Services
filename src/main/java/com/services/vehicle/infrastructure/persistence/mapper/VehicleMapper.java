@@ -50,6 +50,7 @@ public abstract class VehicleMapper {
                 new Mileage(entity.getCurrentKm()),
                 entity.getOperationalStatus(),
                 entity.getAdministrativeStatus(),
+                entity.getSuspensionReason(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 entity.getDocuments() != null

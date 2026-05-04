@@ -2,6 +2,7 @@ package com.services.vehicle.infrastructure.web.controller;
 
 import com.services.vehicle.application.dto.*;
 import com.services.vehicle.application.port.in.*;
+import com.services.vehicle.application.usecase.UpdateDocumentStatusService;
 import com.services.vehicle.domain.enums.AdministrativeStatus;
 import com.services.vehicle.domain.enums.OperationalStatus;
 import com.services.vehicle.domain.valueobject.LicensePlate;
@@ -44,6 +45,8 @@ public class VehicleController {
     private final AssignVehicleUseCase assignVehicleUseCase;
     private final ReleaseVehicleUseCase releaseVehicleUseCase;
     private final DocumentsAboutToExpireUseCase documentsAboutToExpireUseCase;
+    private final UpdateDocumentsStatusUseCase  updateDocumentsStatusUseCase;
+    private final SuspendVehicleUseCase suspendVehicleUseCase;
 
 
     @PostMapping
@@ -253,6 +256,12 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/documents/status")
+    public ResponseEntity<Void> updateDocumentStatus(@PathVariable UUID id){
+        updateDocumentsStatusUseCase.execute(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{vehicleId}/document/{documentId}/renew")
     public ResponseEntity<Void> renewDocument(@PathVariable UUID vehicleId, @PathVariable UUID documentId,
                                               @RequestBody RenewVehicleControllerRequestDTO request) {
@@ -264,6 +273,14 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/suspend")
+    public ResponseEntity<Void> suspend(
+            @PathVariable UUID id,
+            @RequestBody SuspendVehicleRequest request) {
+
+        suspendVehicleUseCase.suspend(id, request.suspensionReason());
+        return ResponseEntity.noContent().build();
+    }
 
 
 

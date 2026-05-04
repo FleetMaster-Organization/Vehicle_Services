@@ -82,6 +82,9 @@ public class VehicleEntity {
     @Column(nullable = false, length = 20)
     private AdministrativeStatus administrativeStatus;
 
+    @Column(length = 255)
+    private String suspensionReason;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

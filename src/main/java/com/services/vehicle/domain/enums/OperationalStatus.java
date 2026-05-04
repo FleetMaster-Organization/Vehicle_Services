@@ -4,5 +4,6 @@ public enum OperationalStatus {
     ACTIVO,
     EN_MANTENIMIENTO,
     INACTIVO,
-    DESECHADO
+    DESECHADO,
+    SUSPENDIDO
 }

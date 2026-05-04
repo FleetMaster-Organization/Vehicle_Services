@@ -46,6 +46,7 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
             entity.setFuelType(vehicle.getFuelType());
             entity.setOperationalStatus(vehicle.getOperationalStatus());
             entity.setAdministrativeStatus(vehicle.getAdministrativeStatus());
+            entity.setSuspensionReason(vehicle.getSuspensionReason());
 
             entity.getDocuments().clear();
             if (vehicle.getDocuments() != null) {

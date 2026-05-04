@@ -139,6 +139,9 @@ public class VehicleDocument {
 
 
 
+
+
+
     public boolean isValid(LocalDate today) {
         return legalStatus == LegalStatus.VALIDO
                 && validityPeriod.isValid(today);
@@ -151,7 +154,7 @@ public class VehicleDocument {
 
         if (validityPeriod.isExpired(today)) {
             this.legalStatus = LegalStatus.EXPIRADO;
-        } else if (validityPeriod.expiresWithin(30, today)) {
+        } else if (validityPeriod.expiresWithin(60, today)) {
             this.legalStatus = LegalStatus.RENOVACION_PENDIENTE;
         } else {
             this.legalStatus = LegalStatus.VALIDO;
@@ -165,13 +168,8 @@ public class VehicleDocument {
         return validityPeriod.expiresWithin(days, today);
     }
 
-    public void suspend() {
-        this.legalStatus = LegalStatus.SUSPENDIDO;
-    }
 
-    public void markPendingRenewal() {
-        this.legalStatus = LegalStatus.RENOVACION_PENDIENTE;
-    }
+
 
 
 }
