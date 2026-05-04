@@ -7,6 +7,7 @@ import com.services.vehicle.domain.exception.VehicleNotFoundException;
 import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.model.VehicleAudit;
 import com.services.vehicle.domain.model.VehicleDocument;
+import com.services.vehicle.domain.model.VehicleDocumentAudit;
 import com.services.vehicle.domain.valueobject.LicensePlate;
 import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentEntity;
@@ -39,16 +40,9 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
         if (vehicle.getId() == null) {
             entity = vehicleMapper.toEntity(vehicle);
 
-            if (vehicle.getAudits() != null) {
-                entity.getAudits().addAll(
-                        vehicleAuditMapper.toEntityList(vehicle.getAudits(), entity)
-                );
-            }
-
         } else {
             entity = jpaVehicleRepository.findById(vehicle.getId())
                     .orElseThrow(() -> new VehicleNotFoundException(vehicle.getId()));
-
 
             entity.setColor(vehicle.getColor());
             entity.setDisplacementCc(vehicle.getDisplacementCc());
@@ -62,19 +56,15 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
             entity.setSuspensionReason(vehicle.getSuspensionReason());
 
             for (VehicleAudit audit : vehicle.getAudits()) {
-
                 boolean exists = entity.getAudits().stream()
                         .anyMatch(a -> a.getId() != null && a.getId().equals(audit.getId()));
 
                 if (!exists) {
-                    entity.getAudits().add(
-                            vehicleAuditMapper.toEntity(audit, entity)
-                    );
+                    entity.getAudits().add(vehicleAuditMapper.toEntity(audit, entity));
                 }
             }
 
             if (vehicle.getDocuments() != null) {
-
                 for (VehicleDocument docDomain : vehicle.getDocuments()) {
 
                     VehicleDocumentEntity docEntity = entity.getDocuments().stream()
@@ -92,29 +82,23 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
                         docEntity.setExpirationDate(docDomain.getValidityPeriod().expirationDate());
                     }
 
-
                     if (docDomain.getAudits() != null) {
-                        for (com.services.vehicle.domain.model.VehicleDocumentAudit docAuditDomain : docDomain.getAudits()) {
+                        for (VehicleDocumentAudit docAuditDomain : docDomain.getAudits()) {
                             boolean auditExists = docEntity.getAudits().stream()
                                     .anyMatch(a -> a.getId() != null && a.getId().equals(docAuditDomain.getId()));
 
                             if (!auditExists) {
-                                docEntity.getAudits().add(
-                                        vehicleDocumentAuditMapper.toEntity(docAuditDomain, docEntity)
-                                );
+                                docEntity.getAudits().add(vehicleDocumentAuditMapper.toEntity(docAuditDomain, docEntity));
                             }
                         }
                     }
                 }
             }
-
         }
 
         VehicleEntity saved = jpaVehicleRepository.save(entity);
-
         return vehicleMapper.toDomain(saved);
     }
-
 
     @Override
     public Vehicle findById(UUID id) {
@@ -126,13 +110,11 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
 
     @Override
     public List<Vehicle> findAll() {
-        List<VehicleEntity> vehicles = jpaVehicleRepository.findAll();
-        return vehicleMapper.toDomainList(vehicles) ;
+        return vehicleMapper.toDomainList(jpaVehicleRepository.findAll());
     }
 
     @Override
     public Vehicle findByPlate(LicensePlate plate) {
-
         VehicleEntity entity = jpaVehicleRepository.findByPlate(plate.value())
                 .orElseThrow(() -> new VehicleNotFoundException(plate));
 
@@ -149,16 +131,13 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
 
     @Override
     public List<Vehicle> findByOperationalStatus(OperationalStatus status) {
-        List<VehicleEntity> vehicles = jpaVehicleRepository.findByOperationalStatus(status);
-        return vehicleMapper.toDomainList(vehicles);
+        return vehicleMapper.toDomainList(jpaVehicleRepository.findByOperationalStatus(status));
     }
 
     @Override
     public List<Vehicle> findByAdministrativeStatus(AdministrativeStatus status) {
-        List<VehicleEntity> vehicles = jpaVehicleRepository.findByAdministrativeStatus(status);
-        return vehicleMapper.toDomainList(vehicles);
+        return vehicleMapper.toDomainList(jpaVehicleRepository.findByAdministrativeStatus(status));
     }
-
 
     @Override
     public boolean existsByPlate(String plate) {

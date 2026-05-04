@@ -3,7 +3,6 @@ package com.services.vehicle.application.usecase;
 import com.services.vehicle.application.dto.CreateVehicleDocumentCommand;
 import com.services.vehicle.application.mapper.CreateVehicleDocumentCommandMapper;
 import com.services.vehicle.application.port.in.AddDocumentToVehicleUseCase;
-import com.services.vehicle.application.port.in.GetAllVehiclesUseCase;
 import com.services.vehicle.application.port.out.VehicleRepositoryPort;
 import com.services.vehicle.domain.enums.LegalStatus;
 import com.services.vehicle.domain.model.Vehicle;

@@ -2,22 +2,25 @@ package com.services.vehicle.domain.model;
 
 import com.services.vehicle.application.dto.RenewVehicleDocumentCommand;
 import com.services.vehicle.domain.enums.*;
-
-import com.services.vehicle.domain.exception.VehicleDocumentNotFoundException;
-import com.services.vehicle.domain.valueobject.*;
 import com.services.vehicle.domain.exception.InvalidDomainDataException;
 import com.services.vehicle.domain.exception.InvalidVehicleStateException;
-import lombok.*;
+import com.services.vehicle.domain.exception.VehicleDocumentNotFoundException;
+import com.services.vehicle.domain.valueobject.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Modelo de dominio puro que representa un vehículo de la flota.
- * No contiene ninguna anotación de persistencia (JPA/Hibernate).
- * La persistencia es responsabilidad de la capa de infraestructura.
+ * No contiene anotaciones de persistencia; esa responsabilidad recae
+ * exclusivamente en la capa de infraestructura.
  */
 @Getter
 @NoArgsConstructor
@@ -47,21 +50,16 @@ public class Vehicle {
     private List<VehicleDocument> documents = new ArrayList<>();
     private List<VehicleAudit> audits = new ArrayList<>();
 
-    // -------------------------------------------------------------------------
-    // Constructor de negocio
-    // -------------------------------------------------------------------------
+    // ── Constructor de negocio ────────────────────────────────────────────────
+
     public Vehicle(LicensePlate plate, Vin vin, String brand, String line,
                    Integer modelYear, Integer displacementCc, String color,
                    ServiceType service, VehicleClass vehicleClass, BodyType bodyType,
                    FuelType fuelType, EngineNumber engineNumber, Mileage initialKm, Mileage currentKm) {
 
         if (currentKm.lessThan(initialKm)) {
-            throw new InvalidDomainDataException(
-                    "El kilometraje actual no puede ser menor al inicial"
-            );
+            throw new InvalidDomainDataException("El kilometraje actual no puede ser menor al inicial");
         }
-
-
 
         this.plate = plate;
         this.vin = vin;
@@ -127,34 +125,22 @@ public class Vehicle {
         return v;
     }
 
-    // -------------------------------------------------------------------------
-    // Lógica de negocio
-    // -------------------------------------------------------------------------
+    // ── Estado operacional ────────────────────────────────────────────────────
 
     public void sendToMaintenance(String modifiedBy) {
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException(
-                    "Un vehículo dado de baja no puede enviarse a mantenimiento."
-            );
+            throw new InvalidVehicleStateException("Un vehículo dado de baja no puede enviarse a mantenimiento.");
         }
         if (this.operationalStatus == OperationalStatus.EN_MANTENIMIENTO) {
-            throw new InvalidVehicleStateException(
-                    "El vehículo ya está en mantenimiento."
-            );
+            throw new InvalidVehicleStateException("El vehículo ya está en mantenimiento.");
         }
 
-        updateStatuses(
-                OperationalStatus.EN_MANTENIMIENTO,
-                AdministrativeStatus.RESERVADO,
-                modifiedBy
-        );
+        updateStatuses(OperationalStatus.EN_MANTENIMIENTO, AdministrativeStatus.RESERVADO, modifiedBy);
     }
 
     public void assign(LocalDate today, String modifiedBy) {
         if (this.operationalStatus != OperationalStatus.ACTIVO) {
-            throw new InvalidVehicleStateException(
-                    "Solo se pueden asignar vehículos ACTIVOS."
-            );
+            throw new InvalidVehicleStateException("Solo se pueden asignar vehículos ACTIVOS.");
         }
         if (!isLegallyCompliant(today)) {
             throw new InvalidVehicleStateException(
@@ -162,78 +148,26 @@ public class Vehicle {
             );
         }
 
-        updateStatuses(
-                OperationalStatus.ACTIVO,
-                AdministrativeStatus.ASIGNADO,
-                modifiedBy
-        );
+        updateStatuses(OperationalStatus.ASIGNADO, AdministrativeStatus.RESERVADO, modifiedBy);
     }
 
     public void release(String modifiedBy) {
-
-
-        if (this.administrativeStatus != AdministrativeStatus.ASIGNADO) {
+        if (this.operationalStatus != OperationalStatus.ASIGNADO) {
             throw new InvalidVehicleStateException("El vehículo no está actualmente asignado.");
         }
 
-        this.administrativeStatus = AdministrativeStatus.DISPONIBLE;
-
-        updateStatuses(
-                OperationalStatus.ACTIVO,
-                AdministrativeStatus.DISPONIBLE,
-                modifiedBy
-        );
+        updateStatuses(OperationalStatus.ACTIVO, AdministrativeStatus.DISPONIBLE, modifiedBy);
     }
-
-    public void updateCurrentKm(Mileage newMileage, String modifiedBy) {
-        if (!newMileage.greaterThan(currentKm)) {
-            throw new InvalidDomainDataException(
-                    "El nuevo kilometraje (%f km) debe ser mayor que el actual (%f km)."
-                            .formatted(newMileage.value(), currentKm.value())
-            );
-        }
-        String oldVal = this.currentKm != null ? String.valueOf(this.currentKm.value()) : null;
-        this.currentKm = newMileage;
-        registerChange("currentKm", oldVal, String.valueOf(newMileage.value()), modifiedBy);
-    }
-
-
 
     public void activate(String modifiedBy) {
-
         if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException(
-                    "Un vehículo dado de baja no puede reactivarse."
-            );
+            throw new InvalidVehicleStateException("Un vehículo dado de baja no puede reactivarse.");
         }
-
         if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
-            throw new InvalidVehicleStateException(
-                    "Un vehículo vendido no puede reactivarse."
-            );
+            throw new InvalidVehicleStateException("Un vehículo vendido no puede reactivarse.");
         }
 
-        updateStatuses(
-                OperationalStatus.ACTIVO,
-                AdministrativeStatus.DISPONIBLE,
-                modifiedBy
-        );
-    }
-
-    public void renewDocument(UUID documentId, RenewVehicleDocumentCommand cmd, String modifiedBy) {
-
-        VehicleDocument document = this.documents.stream()
-                .filter(d -> d.getId().equals(documentId))
-                .findFirst()
-                .orElseThrow(() -> new VehicleDocumentNotFoundException(documentId));
-
-        document.renew(
-                cmd.issuedBy(),
-                cmd.issueDate(),
-                cmd.expirationDate(),
-                modifiedBy
-        );
-
+        updateStatuses(OperationalStatus.ACTIVO, AdministrativeStatus.DISPONIBLE, modifiedBy);
     }
 
     public void scrap(String modifiedBy) {
@@ -241,14 +175,73 @@ public class Vehicle {
             throw new InvalidVehicleStateException("El vehículo ya ha sido desguazado.");
         }
 
-        updateStatuses(
-                OperationalStatus.DESECHADO,
-                AdministrativeStatus.RETIRADO,
-                modifiedBy
-        );
+        updateStatuses(OperationalStatus.DESECHADO, AdministrativeStatus.RETIRADO, modifiedBy);
     }
 
+    public void markAsSold(String modifiedBy) {
+        if (this.administrativeStatus != AdministrativeStatus.DISPONIBLE) {
+            throw new InvalidVehicleStateException("Solo vehículos DISPONIBLES pueden venderse.");
+        }
+        if (this.operationalStatus != OperationalStatus.ACTIVO) {
+            throw new InvalidVehicleStateException("Solo vehículos ACTIVOS pueden venderse.");
+        }
 
+        updateStatuses(OperationalStatus.INACTIVO, AdministrativeStatus.VENDIDO, modifiedBy);
+    }
+
+    public void suspend(String reason, String modifiedBy) {
+        if (this.operationalStatus == OperationalStatus.DESECHADO) {
+            throw new InvalidVehicleStateException("No se puede suspender un vehículo desechado.");
+        }
+        if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
+            throw new InvalidVehicleStateException("No se puede suspender un vehículo vendido.");
+        }
+
+        String oldReason = this.suspensionReason;
+        this.suspensionReason = reason;
+
+        updateStatuses(OperationalStatus.SUSPENDIDO, AdministrativeStatus.RETIRADO, modifiedBy);
+        registerChange("suspensionReason", oldReason, reason, modifiedBy);
+    }
+
+    public String getSuspensionReason() {
+        return this.operationalStatus == OperationalStatus.SUSPENDIDO ? this.suspensionReason : null;
+    }
+
+    // ── Documentos ────────────────────────────────────────────────────────────
+
+    public void addDocument(VehicleDocument document, String modifiedBy) {
+        DocumentType type = document.getDocumentType();
+
+        boolean exists = this.documents.stream().anyMatch(d -> d.getDocumentType() == type);
+
+        if (!type.isExpirable() && exists) {
+            throw new InvalidVehicleStateException("Solo puede existir un documento de tipo: " + type);
+        }
+
+        boolean alreadyActive = this.documents.stream()
+                .anyMatch(d -> d.getDocumentType() == type && (!type.isExpirable() || d.isValid(LocalDate.now())));
+
+        if (type.isExpirable() && alreadyActive) {
+            throw new InvalidVehicleStateException("Ya existe un documento ACTIVO de tipo: " + type);
+        }
+
+        document.markAsCreated(modifiedBy);
+        this.documents.add(document);
+    }
+
+    public void renewDocument(UUID documentId, RenewVehicleDocumentCommand cmd, String modifiedBy) {
+        VehicleDocument document = this.documents.stream()
+                .filter(d -> d.getId().equals(documentId))
+                .findFirst()
+                .orElseThrow(() -> new VehicleDocumentNotFoundException(documentId));
+
+        document.renew(cmd.issuedBy(), cmd.issueDate(), cmd.expirationDate(), modifiedBy);
+    }
+
+    public void updateDocumentsStatus(LocalDate today, String modifiedBy) {
+        this.documents.forEach(doc -> doc.checkExpiration(today, modifiedBy));
+    }
 
     public List<VehicleDocument> documentsAboutToExpire(int days, LocalDate today) {
         return this.documents.stream()
@@ -256,75 +249,19 @@ public class Vehicle {
                 .toList();
     }
 
-    public void markAsSold(String modifiedBy) {
-        if (this.administrativeStatus != AdministrativeStatus.DISPONIBLE) {
-            throw new InvalidVehicleStateException("Solo DISPONIBLES pueden venderse");
-        }
-
-        if (this.operationalStatus != OperationalStatus.ACTIVO) {
-            throw new InvalidVehicleStateException("Solo ACTIVO puede venderse");
-        }
-
-        updateStatuses(
-                OperationalStatus.INACTIVO,
-                AdministrativeStatus.VENDIDO,
-                modifiedBy
-        );
-    }
-
-    public void updateDocumentsStatus(LocalDate today, String modifiedBy) {
-
-        this.documents.forEach(doc -> doc.checkExpiration(today,modifiedBy));
-    }
-
-
-
-
     public boolean hasValidDocument(DocumentType type, LocalDate today) {
         return this.documents.stream()
                 .filter(d -> d.getDocumentType() == type)
-                .anyMatch(d ->
-                        !type.isExpirable() || d.isValid(today)
-                );
-    }
-
-
-    public void addDocument(VehicleDocument document, String modifiedBy) {
-
-        DocumentType type = document.getDocumentType();
-
-        boolean exists = this.documents.stream()
-                .anyMatch(d -> d.getDocumentType() == type);
-
-        if (!type.isExpirable() && exists) {
-            throw new InvalidVehicleStateException(
-                    "Solo puede existir un documento de tipo: " + type
-            );
-        }
-
-        boolean alreadyActive = this.documents.stream()
-                .anyMatch(d ->
-                        d.getDocumentType() == type &&
-                                (!type.isExpirable() || d.isValid(LocalDate.now()))
-                );
-
-        if (type.isExpirable() && alreadyActive) {
-            throw new InvalidVehicleStateException(
-                    "Ya existe un documento ACTIVO de tipo: " + type
-            );
-        }
-
-        document.markAsCreated(modifiedBy);
-
-        this.documents.add(document);
+                .anyMatch(d -> !type.isExpirable() || d.isValid(today));
     }
 
     public boolean isLegallyCompliant(LocalDate today) {
-
         return Arrays.stream(DocumentType.values())
                 .filter(DocumentType::isRequired)
                 .allMatch(type -> hasValidDocument(type, today));
     }
+
+    // ── Campos editables ──────────────────────────────────────────────────────
 
     public void updateColor(String color, String modifiedBy) {
         String oldColor = this.color;
@@ -365,56 +302,21 @@ public class Vehicle {
         registerChange("engineNumber", oldVal, engineNumber.value(), modifiedBy);
     }
 
-    public void suspend(String reason, String modifiedBy) {
-
-        if (this.operationalStatus == OperationalStatus.DESECHADO) {
-            throw new InvalidVehicleStateException("No se puede suspender un vehículo desechado.");
+    public void updateCurrentKm(Mileage newMileage, String modifiedBy) {
+        if (!newMileage.greaterThan(currentKm)) {
+            throw new InvalidDomainDataException(
+                    "El nuevo kilometraje (%f km) debe ser mayor que el actual (%f km)."
+                            .formatted(newMileage.value(), currentKm.value())
+            );
         }
-        if (this.administrativeStatus == AdministrativeStatus.VENDIDO) {
-            throw new InvalidVehicleStateException("No se puede vender un vehículo vendido.");
-        }
-
-        String oldReason = this.suspensionReason;
-
-
-        this.suspensionReason = reason;
-
-        updateStatuses(
-                OperationalStatus.SUSPENDIDO,
-                AdministrativeStatus.RETIRADO,
-                modifiedBy
-        );
-        registerChange("suspensionReason", oldReason, reason, modifiedBy);
+        String oldVal = this.currentKm != null ? String.valueOf(this.currentKm.value()) : null;
+        this.currentKm = newMileage;
+        registerChange("currentKm", oldVal, String.valueOf(newMileage.value()), modifiedBy);
     }
 
-    public String getSuspensionReason() {
-        return this.operationalStatus == OperationalStatus.SUSPENDIDO ? this.suspensionReason : null;
-    }
-
-
-    private void registerChange(
-            String field,
-            String oldValue,
-            String newValue,
-            String modifiedBy
-    ) {
-        if (Objects.equals(oldValue, newValue)) return;
-
-        this.audits.add(VehicleAudit.of(
-                this.id,
-                AuditAction.UPDATE,
-                field,
-                oldValue,
-                newValue,
-                modifiedBy
-        ));
-    }
+    // ── Auditoría ─────────────────────────────────────────────────────────────
 
     public void markAsCreated(String createdBy) {
-        registerCreation(createdBy);
-    }
-
-    private void registerCreation(String createdBy) {
         this.audits.add(VehicleAudit.of(
                 this.id,
                 AuditAction.CREATE,
@@ -425,21 +327,19 @@ public class Vehicle {
         ));
     }
 
+    private void registerChange(String field, String oldValue, String newValue, String modifiedBy) {
+        if (Objects.equals(oldValue, newValue)) return;
 
-
+        this.audits.add(VehicleAudit.of(this.id, AuditAction.UPDATE, field, oldValue, newValue, modifiedBy));
+    }
 
     private void updateStatuses(
             OperationalStatus newOperationalStatus,
             AdministrativeStatus newAdministrativeStatus,
             String modifiedBy
     ) {
-        String oldOperationalStatus = this.operationalStatus != null
-                ? this.operationalStatus.name()
-                : null;
-
-        String oldAdministrativeStatus = this.administrativeStatus != null
-                ? this.administrativeStatus.name()
-                : null;
+        String oldOperationalStatus = this.operationalStatus != null ? this.operationalStatus.name() : null;
+        String oldAdministrativeStatus = this.administrativeStatus != null ? this.administrativeStatus.name() : null;
 
         if (Objects.equals(oldOperationalStatus, newOperationalStatus.name()) &&
                 Objects.equals(oldAdministrativeStatus, newAdministrativeStatus.name())) {
@@ -452,5 +352,4 @@ public class Vehicle {
         registerChange("operationalStatus", oldOperationalStatus, newOperationalStatus.name(), modifiedBy);
         registerChange("administrativeStatus", oldAdministrativeStatus, newAdministrativeStatus.name(), modifiedBy);
     }
-
 }

@@ -1,18 +1,12 @@
 package com.services.vehicle.infrastructure.persistence.entity;
 
 import com.services.vehicle.domain.enums.AuditAction;
-
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Entidad JPA que mapea la tabla "vehicle_audits" en la base de datos.
- * Registra el historial de cambios realizados sobre un vehículo.
- * Esta clase pertenece exclusivamente a la capa de infraestructura.
- */
 @Entity
 @Table(name = "vehicle_audits")
 @Getter

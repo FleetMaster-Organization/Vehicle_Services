@@ -1,9 +1,6 @@
 package com.services.vehicle.application.mapper;
 
-import com.services.vehicle.application.dto.CreateVehicleCommand;
 import com.services.vehicle.application.dto.CreateVehicleDocumentCommand;
-import com.services.vehicle.domain.enums.DocumentType;
-import com.services.vehicle.domain.model.Vehicle;
 import com.services.vehicle.domain.model.VehicleDocument;
 import com.services.vehicle.domain.valueobject.*;
 import org.mapstruct.Mapper;

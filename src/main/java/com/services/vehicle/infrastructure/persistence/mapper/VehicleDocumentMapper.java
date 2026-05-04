@@ -5,29 +5,22 @@ import com.services.vehicle.domain.valueobject.DocumentNumber;
 import com.services.vehicle.domain.valueobject.ValidityPeriod;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleDocumentEntity;
 import com.services.vehicle.infrastructure.persistence.entity.VehicleEntity;
-
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import org.mapstruct.Context;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = { VehicleDocumentAuditMapper.class }
+        uses = {VehicleDocumentAuditMapper.class}
 )
 public abstract class VehicleDocumentMapper {
 
-    // -------------------------------------------------------------------------
-    // Entity → Domain
-    // -------------------------------------------------------------------------
-
     public VehicleDocument toDomain(VehicleDocumentEntity entity) {
-
         if (entity == null) return null;
 
         return VehicleDocument.rehydrate(
@@ -44,14 +37,9 @@ public abstract class VehicleDocumentMapper {
 
     public abstract List<VehicleDocument> toDomainList(List<VehicleDocumentEntity> entities);
 
-    // -------------------------------------------------------------------------
-    // Domain → Entity
-    // -------------------------------------------------------------------------
-
     @Mapping(target = "vehicle", expression = "java(vehicleEntity)")
     @Mapping(target = "audits", ignore = true)
     @Mapping(target = "documentNumber", source = "documentNumber.value")
-    @Mapping(target = "documentType", source = "documentType")
     @Mapping(target = "issueDate", source = "validityPeriod.issueDate")
     @Mapping(target = "expirationDate", source = "validityPeriod.expirationDate")
     public abstract VehicleDocumentEntity toEntity(
@@ -63,6 +51,4 @@ public abstract class VehicleDocumentMapper {
             List<VehicleDocument> domains,
             @Context VehicleEntity vehicleEntity
     );
-
-
 }

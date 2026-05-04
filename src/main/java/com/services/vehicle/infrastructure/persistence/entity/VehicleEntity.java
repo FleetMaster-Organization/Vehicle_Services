@@ -1,11 +1,6 @@
 package com.services.vehicle.infrastructure.persistence.entity;
 
 import com.services.vehicle.domain.enums.*;
-
-import com.services.vehicle.domain.valueobject.EngineNumber;
-import com.services.vehicle.domain.valueobject.LicensePlate;
-import com.services.vehicle.domain.valueobject.Vin;
-import com.services.vehicle.domain.valueobject.Mileage;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,11 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Entidad JPA que mapea la tabla "vehicles" en la base de datos.
- * Esta clase pertenece exclusivamente a la capa de infraestructura.
- * El dominio no debe conocer ni depender de esta clase.
- */
 @Entity
 @Table(name = "vehicles")
 @Getter
