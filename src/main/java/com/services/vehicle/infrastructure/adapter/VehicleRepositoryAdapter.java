@@ -54,7 +54,9 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
             entity.setOperationalStatus(vehicle.getOperationalStatus());
             entity.setAdministrativeStatus(vehicle.getAdministrativeStatus());
             entity.setSuspensionReason(vehicle.getSuspensionReason());
+        }
 
+        if (vehicle.getAudits() != null) {
             for (VehicleAudit audit : vehicle.getAudits()) {
                 boolean exists = entity.getAudits().stream()
                         .anyMatch(a -> a.getId() != null && a.getId().equals(audit.getId()));
@@ -63,33 +65,33 @@ public class VehicleRepositoryAdapter implements VehicleRepositoryPort {
                     entity.getAudits().add(vehicleAuditMapper.toEntity(audit, entity));
                 }
             }
+        }
 
-            if (vehicle.getDocuments() != null) {
-                for (VehicleDocument docDomain : vehicle.getDocuments()) {
+        if (vehicle.getDocuments() != null) {
+            for (VehicleDocument docDomain : vehicle.getDocuments()) {
 
-                    VehicleDocumentEntity docEntity = entity.getDocuments().stream()
-                            .filter(d -> d.getId().equals(docDomain.getId()))
-                            .findFirst()
-                            .orElse(null);
+                VehicleDocumentEntity docEntity = entity.getDocuments().stream()
+                        .filter(d -> d.getId().equals(docDomain.getId()))
+                        .findFirst()
+                        .orElse(null);
 
-                    if (docEntity == null) {
-                        docEntity = vehicleDocumentMapper.toEntity(docDomain, entity);
-                        entity.getDocuments().add(docEntity);
-                    } else {
-                        docEntity.setIssuedBy(docDomain.getIssuedBy());
-                        docEntity.setLegalStatus(docDomain.getLegalStatus());
-                        docEntity.setIssueDate(docDomain.getValidityPeriod().issueDate());
-                        docEntity.setExpirationDate(docDomain.getValidityPeriod().expirationDate());
-                    }
+                if (docEntity == null) {
+                    docEntity = vehicleDocumentMapper.toEntity(docDomain, entity);
+                    entity.getDocuments().add(docEntity);
+                } else {
+                    docEntity.setIssuedBy(docDomain.getIssuedBy());
+                    docEntity.setLegalStatus(docDomain.getLegalStatus());
+                    docEntity.setIssueDate(docDomain.getValidityPeriod().issueDate());
+                    docEntity.setExpirationDate(docDomain.getValidityPeriod().expirationDate());
+                }
 
-                    if (docDomain.getAudits() != null) {
-                        for (VehicleDocumentAudit docAuditDomain : docDomain.getAudits()) {
-                            boolean auditExists = docEntity.getAudits().stream()
-                                    .anyMatch(a -> a.getId() != null && a.getId().equals(docAuditDomain.getId()));
+                if (docDomain.getAudits() != null) {
+                    for (VehicleDocumentAudit docAuditDomain : docDomain.getAudits()) {
+                        boolean auditExists = docEntity.getAudits().stream()
+                                .anyMatch(a -> a.getId() != null && a.getId().equals(docAuditDomain.getId()));
 
-                            if (!auditExists) {
-                                docEntity.getAudits().add(vehicleDocumentAuditMapper.toEntity(docAuditDomain, docEntity));
-                            }
+                        if (!auditExists) {
+                            docEntity.getAudits().add(vehicleDocumentAuditMapper.toEntity(docAuditDomain, docEntity));
                         }
                     }
                 }
