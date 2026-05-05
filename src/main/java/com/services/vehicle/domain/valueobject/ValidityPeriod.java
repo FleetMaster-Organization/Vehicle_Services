@@ -33,14 +33,9 @@ public record ValidityPeriod(
         return !isExpired(today);
     }
 
-    public boolean expiresWithin(
-            int days,
-            LocalDate today
-    ) {
+    public boolean expiresWithin(int days, LocalDate today) {
         return !expirationDate.isBefore(today)
-                && expirationDate.isBefore(
-                today.plusDays(days)
-        );
+                && !expirationDate.isAfter(today.plusDays(days));
     }
 
     public ValidityPeriod renew(

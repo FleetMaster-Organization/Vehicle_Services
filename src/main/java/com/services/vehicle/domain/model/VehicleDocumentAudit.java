@@ -2,17 +2,14 @@ package com.services.vehicle.domain.model;
 
 import com.services.vehicle.domain.enums.AuditAction;
 import com.services.vehicle.domain.exception.InvalidDomainDataException;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Modelo de dominio puro que representa un registro de auditoría sobre un documento vehicular.
- * Traza los cambios realizados a documentos como SOAT o Tecnomecánica.
- * No contiene anotaciones de persistencia.
- */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,7 +38,6 @@ public class VehicleDocumentAudit {
         }
 
         return VehicleDocumentAudit.builder()
-                .id(UUID.randomUUID())
                 .documentId(documentId)
                 .actionType(action)
                 .modifiedField(modifiedField)

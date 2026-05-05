@@ -1,18 +1,21 @@
 package com.services.vehicle.infrastructure.web.mapper;
 
 import com.services.vehicle.application.dto.CreateVehicleDocumentCommand;
-import com.services.vehicle.domain.enums.DocumentType;
+import com.services.vehicle.application.dto.DocumentResponse;
+import com.services.vehicle.application.dto.RenewVehicleDocumentCommand;
 import com.services.vehicle.infrastructure.web.dto.CreateVehicleDocumentRequestDTO;
+import com.services.vehicle.infrastructure.web.dto.DocumentControllerResponseDTO;
+import com.services.vehicle.infrastructure.web.dto.RenewVehicleControllerRequestDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface VehicleDocumentControllerMapper {
 
-    @Mapping(target = "documentType", expression = "java(map(request.documentType()))")
     CreateVehicleDocumentCommand toCommand(CreateVehicleDocumentRequestDTO request);
 
-    default DocumentType map(String value) {
-        return DocumentType.valueOf(value.toUpperCase());
-    }
+    DocumentControllerResponseDTO toResponse(DocumentResponse response);
+
+    RenewVehicleDocumentCommand toUpdate(RenewVehicleControllerRequestDTO request);
+
+
 }

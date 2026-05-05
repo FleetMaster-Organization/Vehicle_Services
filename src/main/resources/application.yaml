@@ -4,7 +4,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 
 
   # Configuración para TiDB (Protocolo MySQL)
@@ -42,3 +42,8 @@ feign:
       default:
         connectTimeout: 5000
         readTimeout: 5000
+
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
