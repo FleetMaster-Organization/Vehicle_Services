@@ -28,8 +28,5 @@ public abstract class VehicleAuditMapper {
             @Context VehicleEntity vehicleEntity
     );
 
-    public abstract List<VehicleAuditEntity> toEntityList(
-            List<VehicleAudit> domains,
-            @Context VehicleEntity vehicleEntity
-    );
+
 }

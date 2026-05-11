@@ -47,8 +47,4 @@ public abstract class VehicleDocumentMapper {
             @Context VehicleEntity vehicleEntity
     );
 
-    public abstract List<VehicleDocumentEntity> toEntityList(
-            List<VehicleDocument> domains,
-            @Context VehicleEntity vehicleEntity
-    );
 }
