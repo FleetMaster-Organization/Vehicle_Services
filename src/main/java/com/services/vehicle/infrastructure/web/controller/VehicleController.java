@@ -180,13 +180,14 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
     }
 
-    @GetMapping("/{operationalStatus}/operational-status")
+    @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByOperationalStatus(@PathVariable String operationalStatus){
+    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByOperationalStatus(
+            @RequestParam OperationalStatus operationalStatus
+    ) {
 
-        OperationalStatus operationalStatusEnum = OperationalStatus.valueOf(operationalStatus.toUpperCase());
-
-        List<VehicleResponse> vehicles = getVehiclesByOperationalStatus.execute(operationalStatusEnum);
+        List<VehicleResponse> vehicles =
+                getVehiclesByOperationalStatus.execute(operationalStatus);
 
         List<VehicleControllerResponseDTO> response = vehicles.stream()
                 .map(vehicleControllerMapper::toDto)
@@ -195,15 +196,16 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{administrativeStatus}/administrative-status")
+    @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByAdministrativeStatus(@PathVariable String administrativeStatus){
+    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByAdministrativeStatus(
+            @RequestParam AdministrativeStatus administrativeStatus
+    ) {
 
-        AdministrativeStatus administrativeStatusEnum = AdministrativeStatus.valueOf(administrativeStatus.toUpperCase());
+        List<VehicleResponse> vehicles =
+                getVehiclesByAdministrativeStatus.execute(administrativeStatus);
 
-        List<VehicleResponse> vehicles = getVehiclesByAdministrativeStatus.execute(administrativeStatusEnum);
-
-        List<VehicleControllerResponseDTO> response =  vehicles.stream()
+        List<VehicleControllerResponseDTO> response = vehicles.stream()
                 .map(vehicleControllerMapper::toDto)
                 .toList();
 
