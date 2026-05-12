@@ -107,6 +107,42 @@ public class VehicleController {
         );
     }
 
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
+    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehicles(
+
+            @RequestParam(required = false)
+            OperationalStatus operationalStatus,
+
+            @RequestParam(required = false)
+            AdministrativeStatus administrativeStatus
+    ) {
+
+        List<VehicleResponse> vehicles;
+
+        if (operationalStatus != null) {
+
+            vehicles = getVehiclesByOperationalStatus
+                    .execute(operationalStatus);
+
+        } else if (administrativeStatus != null) {
+
+            vehicles = getVehiclesByAdministrativeStatus
+                    .execute(administrativeStatus);
+
+        } else {
+
+            vehicles = getAllVehiclesUseCase.execute();
+        }
+
+        List<VehicleControllerResponseDTO> response =
+                vehicles.stream()
+                        .map(vehicleControllerMapper::toDto)
+                        .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{vehicleId}/documents/{documentId}")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<DocumentControllerResponseDTO> getDocumentById(
@@ -145,19 +181,6 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<List<VehicleControllerResponseDTO>> getAllVehicles() {
-
-        List<VehicleResponse> vehicles = getAllVehiclesUseCase.execute();
-
-        List<VehicleControllerResponseDTO> response = vehicles.stream()
-                .map(vehicleControllerMapper::toDto)
-                .toList();
-
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping("/{plate}/plate")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<VehicleControllerResponseDTO> getVehicleByPlate(@PathVariable String plate){
@@ -180,37 +203,7 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
     }
 
-    @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByOperationalStatus(
-            @RequestParam OperationalStatus operationalStatus
-    ) {
 
-        List<VehicleResponse> vehicles =
-                getVehiclesByOperationalStatus.execute(operationalStatus);
-
-        List<VehicleControllerResponseDTO> response = vehicles.stream()
-                .map(vehicleControllerMapper::toDto)
-                .toList();
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
-    public ResponseEntity<List<VehicleControllerResponseDTO>> getVehiclesByAdministrativeStatus(
-            @RequestParam AdministrativeStatus administrativeStatus
-    ) {
-
-        List<VehicleResponse> vehicles =
-                getVehiclesByAdministrativeStatus.execute(administrativeStatus);
-
-        List<VehicleControllerResponseDTO> response = vehicles.stream()
-                .map(vehicleControllerMapper::toDto)
-                .toList();
-
-        return ResponseEntity.ok(response);
-    }
 
     @PutMapping("/{id}/update")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
