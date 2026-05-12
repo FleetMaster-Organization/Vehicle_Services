@@ -9,6 +9,12 @@ import com.services.vehicle.domain.valueobject.Vin;
 import com.services.vehicle.infrastructure.web.dto.*;
 import com.services.vehicle.infrastructure.web.mapper.VehicleControllerMapper;
 import com.services.vehicle.infrastructure.web.mapper.VehicleDocumentControllerMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +57,18 @@ public class VehicleController {
 
     String defaultUser = "SYSTEM";
 
-
+    @Operation(
+            summary = "Crear un nuevo vehículo",
+            description = "Crea un vehículo en el sistema. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Vehículo creado correctamente",
+                            content = @Content(schema = @Schema(implementation = CreateVehicleControllerResponseDTO.class))),
+                    @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado")
+            }
+    )
     @PostMapping
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<CreateVehicleControllerResponseDTO> createVehicle(
@@ -72,6 +89,19 @@ public class VehicleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(
+            summary = "Agregar documento a un vehículo",
+            description = "Asocia un nuevo documento a un vehículo existente. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Documento creado correctamente",
+                            content = @Content(schema = @Schema(implementation = CreateVehicleControllerResponseDTO.class))),
+                    @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PostMapping("/{vehicleId}/documents")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<CreateVehicleControllerResponseDTO> addDocument(
@@ -96,6 +126,18 @@ public class VehicleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(
+            summary = "Obtener vehículo por ID",
+            description = "Retorna un vehículo por su UUID. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Vehículo encontrado",
+                            content = @Content(schema = @Schema(implementation = VehicleControllerResponseDTO.class))),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<VehicleControllerResponseDTO> getVehicleById(@PathVariable UUID id) {
@@ -107,6 +149,17 @@ public class VehicleController {
         );
     }
 
+    @Operation(
+            summary = "Listar vehículos",
+            description = "Retorna todos los vehículos. Se puede filtrar por estado operacional o administrativo. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista de vehículos obtenida correctamente",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = VehicleControllerResponseDTO.class)))),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado")
+            }
+    )
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<List<VehicleControllerResponseDTO>> getVehicles(
@@ -143,6 +196,18 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Obtener documento por ID",
+            description = "Retorna un documento específico de un vehículo. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Documento encontrado",
+                            content = @Content(schema = @Schema(implementation = DocumentControllerResponseDTO.class))),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo o documento no encontrado")
+            }
+    )
     @GetMapping("/{vehicleId}/documents/{documentId}")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<DocumentControllerResponseDTO> getDocumentById(
@@ -156,6 +221,18 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleDocumentMapper.toResponse(response));
     }
 
+    @Operation(
+            summary = "Listar documentos de un vehículo",
+            description = "Retorna todos los documentos asociados a un vehículo. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista de documentos obtenida correctamente",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = DocumentControllerResponseDTO.class)))),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @GetMapping("/{vehicleId}/documents")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<List<DocumentControllerResponseDTO>> getAllDocumentsByVehicleId(@PathVariable UUID vehicleId) {
@@ -168,6 +245,18 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Obtener documentos próximos a vencer",
+            description = "Retorna los documentos de un vehículo que están próximos a vencer. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista de documentos próximos a vencer",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = DocumentControllerResponseDTO.class)))),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @GetMapping("/{id}/documentsAboutToExpire")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<List<DocumentControllerResponseDTO>>  documentsAboutToExpire(@PathVariable UUID id) {
@@ -181,6 +270,18 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Obtener vehículo por placa",
+            description = "Retorna un vehículo buscando por su número de placa. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Vehículo encontrado",
+                            content = @Content(schema = @Schema(implementation = VehicleControllerResponseDTO.class))),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @GetMapping("/{plate}/plate")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<VehicleControllerResponseDTO> getVehicleByPlate(@PathVariable String plate){
@@ -192,6 +293,18 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleControllerMapper.toDto(response));
     }
 
+    @Operation(
+            summary = "Obtener vehículo por VIN",
+            description = "Retorna un vehículo buscando por su número VIN. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Vehículo encontrado",
+                            content = @Content(schema = @Schema(implementation = VehicleControllerResponseDTO.class))),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @GetMapping("{vin}/vin")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<VehicleControllerResponseDTO> getVehiclesByVin(@PathVariable String vin){
@@ -204,7 +317,18 @@ public class VehicleController {
     }
 
 
-
+    @Operation(
+            summary = "Actualizar un vehículo",
+            description = "Actualiza los datos de un vehículo existente. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vehículo actualizado correctamente"),
+                    @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PutMapping("/{id}/update")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> updateVehicle(
@@ -221,6 +345,17 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Dar de baja un vehículo (scrap)",
+            description = "Marca un vehículo como dado de baja. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vehículo dado de baja correctamente"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PatchMapping("/{id}/scrap")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> scrapVehicleById(@PathVariable UUID id) {
@@ -230,6 +365,18 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @Operation(
+            summary = "Marcar vehículo como vendido",
+            description = "Cambia el estado de un vehículo a vendido. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vehículo marcado como vendido correctamente"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PatchMapping("/{id}/sell")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> sellVehicle(@PathVariable UUID id) {
@@ -239,6 +386,17 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Activar un vehículo",
+            description = "Cambia el estado de un vehículo a activo. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vehículo activado correctamente"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PatchMapping("/{id}/activate")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> activateVehicle(@PathVariable UUID id) {
@@ -249,6 +407,17 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Enviar vehículo a mantenimiento",
+            description = "Cambia el estado de un vehículo a en mantenimiento. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vehículo enviado a mantenimiento correctamente"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PatchMapping("/{id}/send-maintenance")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> sendMaintenance(@PathVariable UUID id) {
@@ -262,6 +431,18 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Asignar vehículo",
+            description = "Marca un vehículo como asignado. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vehículo asignado correctamente"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
+
     @PatchMapping("/{id}/assign")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> assignVehicle(@PathVariable UUID id) {
@@ -273,6 +454,17 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Liberar vehículo",
+            description = "Marca un vehículo como disponible. Requiere rol ROLE_COORDINADOR o ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vehículo liberado correctamente"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PatchMapping("/{id}/release")
     @PreAuthorize("hasAnyAuthority('ROLE_COORDINADOR', 'ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> releaseVehicle(@PathVariable UUID id) {
@@ -282,6 +474,17 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Actualizar estado de documentos del vehículo",
+            description = "Actualiza el estado de todos los documentos asociados a un vehículo. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Estado de documentos actualizado correctamente"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PatchMapping("/{id}/documents/status")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> updateDocumentStatus(@PathVariable UUID id){
@@ -291,6 +494,19 @@ public class VehicleController {
         updateDocumentsStatusUseCase.execute(id,user);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(
+            summary = "Renovar documento de un vehículo",
+            description = "Renueva un documento específico asociado a un vehículo. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Documento renovado correctamente"),
+                    @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo o documento no encontrado")
+            }
+    )
 
     @PatchMapping("/{vehicleId}/document/{documentId}/renew")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
@@ -308,6 +524,18 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Suspender un vehículo",
+            description = "Suspende un vehículo indicando el motivo de suspensión. Requiere el rol ROLE_ADMINISTRATOR.",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Vehículo suspendido correctamente"),
+                    @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "403", description = "Acceso denegado"),
+                    @ApiResponse(responseCode = "404", description = "Vehículo no encontrado")
+            }
+    )
     @PatchMapping("/{id}/suspend")
     @PreAuthorize("hasAuthority('ROLE_ADMINISTRATOR')")
     public ResponseEntity<Void> suspend(
