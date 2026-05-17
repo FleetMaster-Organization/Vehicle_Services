@@ -11,12 +11,7 @@ spring:
             connectTimeout: 5000
             readTimeout: 5000
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-
-
-  # Configuración para TiDB (Protocolo MySQL)
+  # Configuración PostgreSQL (Supabase/TiDB)
   datasource:
     url: jdbc:postgresql://${TIDB_HOST}:${TIDB_PORT:6543}/${TIDB_DB}?currentSchema=vehicles_db&sslmode=require
     username: ${TIDB_USER}
